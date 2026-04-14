@@ -124,6 +124,44 @@ impl<F, DR, DC, const R: usize, const C: usize> FrameUnitMat<F, DR, DC, R, C> {
     pub fn zeros() -> Self {
         Self::from_raw_unchecked(SMatrix::zeros())
     }
+
+    /// Rescale both row and column dimensions by the same factor `S`.
+    ///
+    /// This reinterprets the matrix without changing any numerical values.
+    /// The element dimension `DR / DC` is preserved because both are scaled
+    /// by the same factor: `(DR * S) / (DC * S) = DR / DC`.
+    ///
+    /// # Example: inertia tensor reinterpretation
+    ///
+    /// The inertia tensor I [kg·m²] can be interpreted as:
+    /// - `I · ω = L`: maps AngularVelocity → AngularMomentum
+    /// - `I · ω̇ = τ`: maps AngularAcceleration → Torque
+    ///
+    /// These share the same element dimension (MomentOfInertia), but differ
+    /// by a factor of InvTime on both row and column dimensions:
+    ///
+    /// ```text
+    /// AngularMomentum = Torque × Time        (row: ×InvTime)
+    /// AngularVelocity = AngularAcceleration × Time  (col: ×InvTime)
+    /// ```
+    ///
+    /// So `rescale_dims::<InvTime>()` converts between interpretations:
+    ///
+    /// ```rust,ignore
+    /// let i_vel: FrameUnitMat<Body, AngularMomentum, AngularVelocity, 3, 3> = ...;
+    /// let i_acc = i_vel.rescale_dims::<InvTime>();
+    /// // i_acc: FrameUnitMat<Body, Torque, AngularAcceleration, 3, 3>
+    /// ```
+    #[inline(always)]
+    pub fn rescale_dims<S>(
+        self,
+    ) -> FrameUnitMat<F, <DR as DimMultiply<S>>::Output, <DC as DimMultiply<S>>::Output, R, C>
+    where
+        DR: DimMultiply<S>,
+        DC: DimMultiply<S>,
+    {
+        FrameUnitMat::from_raw_unchecked(self.value)
+    }
 }
 
 // ---- Identity (square, same dim) ----

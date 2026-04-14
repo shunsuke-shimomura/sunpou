@@ -76,6 +76,23 @@ impl<DR, DC, const R: usize, const C: usize> UnitMat<DR, DC, R, C> {
     pub fn transpose(&self) -> UnitMat<DC, DR, C, R> {
         UnitMat::from_raw_unchecked(self.value.transpose())
     }
+
+    /// Rescale both row and column dimensions by the same factor `S`.
+    ///
+    /// Reinterprets the matrix without changing numerical values.
+    /// Element dimension `DR / DC` is preserved: `(DR×S) / (DC×S) = DR / DC`.
+    ///
+    /// See [`FrameUnitMat::rescale_dims`] for detailed documentation and examples.
+    #[inline(always)]
+    pub fn rescale_dims<S>(
+        self,
+    ) -> UnitMat<<DR as DimMultiply<S>>::Output, <DC as DimMultiply<S>>::Output, R, C>
+    where
+        DR: DimMultiply<S>,
+        DC: DimMultiply<S>,
+    {
+        UnitMat::from_raw_unchecked(self.value)
+    }
 }
 
 // ---- Identity (square, same dim) ----
