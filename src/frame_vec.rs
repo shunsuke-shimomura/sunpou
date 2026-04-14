@@ -105,6 +105,21 @@ impl<F, D> FrameVec<F, D> {
         Scalar::from_raw_unchecked(self.value.norm_squared())
     }
 
+    /// Convert to a frame-less UnitVec (strip the frame tag).
+    #[inline(always)]
+    pub fn to_unit_vec(&self) -> crate::unit_vec::UnitVec<D, 3> {
+        crate::unit_vec::UnitVec::from_raw_unchecked(
+            nalgebra::SVector::from([self.value.x, self.value.y, self.value.z]),
+        )
+    }
+
+    /// Create from a UnitVec (add frame tag).
+    #[inline(always)]
+    pub fn from_unit_vec(v: &crate::unit_vec::UnitVec<D, 3>) -> Self {
+        let raw = v.as_raw();
+        Self::new(raw[0], raw[1], raw[2])
+    }
+
     /// Normalize to unit length. Returns a dimensionless frame vector.
     /// Returns `None` if the vector is zero.
     #[inline(always)]
