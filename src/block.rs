@@ -121,6 +121,47 @@ where
     }
 }
 
+// BlockMat2x2 transpose
+impl<A, B, C, D> BlockMat2x2<A, B, C, D> {
+    /// Transpose: swap off-diagonal blocks and transpose each block.
+    ///
+    /// ```text
+    /// | A  B |ᵀ   | Aᵀ  Cᵀ |
+    /// | C  D |  = | Bᵀ  Dᵀ |
+    /// ```
+    #[inline(always)]
+    pub fn transpose<AT, CT, BT, DT>(self) -> BlockMat2x2<AT, CT, BT, DT>
+    where
+        A: TransposeBlock<Output = AT>,
+        B: TransposeBlock<Output = BT>,
+        C: TransposeBlock<Output = CT>,
+        D: TransposeBlock<Output = DT>,
+    {
+        BlockMat2x2 {
+            a: self.a.block_transpose(),
+            b: self.c.block_transpose(),
+            c: self.b.block_transpose(),
+            d: self.d.block_transpose(),
+        }
+    }
+}
+
+/// Trait for transposing a block element (used by BlockMat2x2::transpose).
+pub trait TransposeBlock {
+    type Output;
+    fn block_transpose(self) -> Self::Output;
+}
+
+impl<DR, DC, const R: usize, const C: usize> TransposeBlock
+    for crate::unit_mat::UnitMat<DR, DC, R, C>
+{
+    type Output = crate::unit_mat::UnitMat<DC, DR, C, R>;
+    #[inline(always)]
+    fn block_transpose(self) -> Self::Output {
+        self.transpose()
+    }
+}
+
 // BlockMat2x2 + BlockMat2x2
 impl<A: Add, B: Add, C: Add, D: Add> Add for BlockMat2x2<A, B, C, D> {
     type Output = BlockMat2x2<A::Output, B::Output, C::Output, D::Output>;

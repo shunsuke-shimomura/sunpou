@@ -1,7 +1,7 @@
 //! Unit-aware N-dimensional vector.
 
 use core::marker::PhantomData;
-use core::ops::{Add, Mul, Neg, Sub};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use nalgebra::SVector;
 
 use crate::dim::{Dim, DimMultiply};
@@ -60,10 +60,25 @@ impl<D, const N: usize> UnitVec<D, N> {
         &self.value
     }
 
+    /// Create a zero vector.
+    #[inline(always)]
+    pub fn zeros() -> Self {
+        Self::from_raw_unchecked(SVector::zeros())
+    }
+
     /// Euclidean norm. Returns a scalar with the same dimension.
     #[inline(always)]
     pub fn norm(&self) -> Scalar<D> {
         Scalar::from_raw_unchecked(self.value.norm())
+    }
+
+    /// Normalize to unit length. Returns a dimensionless unit vector.
+    /// Returns `None` if the vector is zero.
+    #[inline(always)]
+    pub fn try_normalize(&self, min_norm: f64) -> Option<UnitVec<crate::aliases::Dimensionless, N>> {
+        self.value
+            .try_normalize(min_norm)
+            .map(UnitVec::from_raw_unchecked)
     }
 
     /// Squared norm. Returns a scalar with dimension D².
@@ -73,6 +88,34 @@ impl<D, const N: usize> UnitVec<D, N> {
         D: DimMultiply<D, Output = D2>,
     {
         Scalar::from_raw_unchecked(self.value.norm_squared())
+    }
+}
+
+// ---- Convenience constructors for 3D ----
+
+impl<D> UnitVec<D, 3> {
+    /// Create a 3D vector from components.
+    #[inline(always)]
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self::from_raw_unchecked(SVector::from([x, y, z]))
+    }
+
+    /// X component.
+    #[inline(always)]
+    pub fn x(&self) -> f64 {
+        self.value[0]
+    }
+
+    /// Y component.
+    #[inline(always)]
+    pub fn y(&self) -> f64 {
+        self.value[1]
+    }
+
+    /// Z component.
+    #[inline(always)]
+    pub fn z(&self) -> f64 {
+        self.value[2]
     }
 }
 
@@ -165,5 +208,46 @@ impl<D, const N: usize> Mul<UnitVec<D, N>> for f64 {
     #[inline(always)]
     fn mul(self, rhs: UnitVec<D, N>) -> UnitVec<D, N> {
         UnitVec::from_raw_unchecked(rhs.value * self)
+    }
+}
+
+// ---- Compound assignment ----
+
+impl<D, const N: usize> AddAssign for UnitVec<D, N> {
+    #[inline(always)]
+    fn add_assign(&mut self, rhs: Self) {
+        self.value += rhs.value;
+    }
+}
+
+impl<D, const N: usize> SubAssign for UnitVec<D, N> {
+    #[inline(always)]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.value -= rhs.value;
+    }
+}
+
+impl<D, const N: usize> MulAssign<f64> for UnitVec<D, N> {
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: f64) {
+        self.value *= rhs;
+    }
+}
+
+// ---- Reference ops ----
+
+impl<D, const N: usize> Add for &UnitVec<D, N> {
+    type Output = UnitVec<D, N>;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> UnitVec<D, N> {
+        UnitVec::from_raw_unchecked(self.value + rhs.value)
+    }
+}
+
+impl<D, const N: usize> Sub for &UnitVec<D, N> {
+    type Output = UnitVec<D, N>;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> UnitVec<D, N> {
+        UnitVec::from_raw_unchecked(self.value - rhs.value)
     }
 }

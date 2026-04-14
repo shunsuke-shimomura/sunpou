@@ -38,28 +38,13 @@ type Covariance = BlockMat2x2<
     UnitMat<Velocity, Velocity, 3, 3>,
 >;
 
-/// STM transpose: Φᵀ has transposed block dimensions
-///
-/// ```text
-/// Φᵀ = | (∂r/∂r₀)ᵀ  (∂v/∂r₀)ᵀ |
-///      | (∂r/∂v₀)ᵀ  (∂v/∂v₀)ᵀ |
-/// ```
+/// STM transpose type (computed via BlockMat2x2::transpose())
 type StmTranspose = BlockMat2x2<
     UnitMat<Length, Length, 3, 3>,
     UnitMat<Length, Velocity, 3, 3>,
     UnitMat<Velocity, Length, 3, 3>,
     UnitMat<Velocity, Velocity, 3, 3>,
 >;
-
-fn stm_transpose(phi: &Stm) -> StmTranspose {
-    // Φᵀ: swap off-diagonal blocks AND transpose each block
-    StmTranspose::new(
-        phi.a.transpose(), // (∂r/∂r₀)ᵀ : Length/Length
-        phi.c.transpose(), // (∂v/∂r₀)ᵀ : Length/Velocity  (note: c and b swap!)
-        phi.b.transpose(), // (∂r/∂v₀)ᵀ : Velocity/Length
-        phi.d.transpose(), // (∂v/∂v₀)ᵀ : Velocity/Velocity
-    )
-}
 
 fn main() {
     println!("=== EKF Prediction Step (Orbital Mechanics) ===\n");
@@ -103,8 +88,8 @@ fn main() {
     // Covariance propagation: P₁ = Φ * P₀ * Φᵀ + Q
     // Step 1: Φ * P₀
     let phi_p0: Covariance = phi * p0;
-    // Step 2: (Φ * P₀) * Φᵀ
-    let phi_t = stm_transpose(&phi);
+    // Step 2: (Φ * P₀) * Φᵀ — uses BlockMat2x2::transpose()
+    let phi_t: StmTranspose = phi.transpose();
     let phi_p0_phit: Covariance = phi_p0 * phi_t;
     // Step 3: + Q
     let p1: Covariance = phi_p0_phit + q;

@@ -7,7 +7,7 @@
 //! More precisely: `UnitMat<DR, DC, R, C> * UnitVec<DC, C> → UnitVec<DR, R>`.
 
 use core::marker::PhantomData;
-use core::ops::{Add, Mul, Neg, Sub};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use nalgebra::SMatrix;
 
 use crate::dim::{Dim, DimMultiply};
@@ -213,5 +213,28 @@ impl<DR, DC, const N: usize> UnitMat<DR, DC, N, N> {
     #[inline(always)]
     pub fn try_inverse(&self) -> Option<UnitMat<DC, DR, N, N>> {
         self.value.try_inverse().map(UnitMat::from_raw_unchecked)
+    }
+}
+
+// ---- Compound assignment ----
+
+impl<DR, DC, const R: usize, const C: usize> AddAssign for UnitMat<DR, DC, R, C> {
+    #[inline(always)]
+    fn add_assign(&mut self, rhs: Self) {
+        self.value += rhs.value;
+    }
+}
+
+impl<DR, DC, const R: usize, const C: usize> SubAssign for UnitMat<DR, DC, R, C> {
+    #[inline(always)]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.value -= rhs.value;
+    }
+}
+
+impl<DR, DC, const R: usize, const C: usize> MulAssign<f64> for UnitMat<DR, DC, R, C> {
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: f64) {
+        self.value *= rhs;
     }
 }
