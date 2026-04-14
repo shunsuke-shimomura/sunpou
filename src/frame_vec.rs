@@ -1,0 +1,183 @@
+//! Frame-tagged 3D vector with SI dimension.
+
+use core::marker::PhantomData;
+use core::ops::{Add, Mul, Neg, Sub};
+use nalgebra::Vector3;
+
+use crate::dim::{Dim, DimMultiply};
+use crate::scalar::Scalar;
+
+/// A 3D vector tagged with coordinate frame `F` and SI dimension `D`.
+///
+/// Frame markers are user-defined zero-sized types. This type is independent
+/// of any specific frame library (e.g. arika).
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct FrameVec<F, D> {
+    value: Vector3<f64>,
+    _marker: PhantomData<(F, D)>,
+}
+
+impl<F, D> core::fmt::Debug for FrameVec<F, D> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "FrameVec([{}, {}, {}])",
+            self.value.x, self.value.y, self.value.z
+        )
+    }
+}
+
+impl<F, D> FrameVec<F, D> {
+    /// Create from components. Caller ensures SI base units and correct frame.
+    #[inline(always)]
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self {
+            value: Vector3::new(x, y, z),
+            _marker: PhantomData,
+        }
+    }
+
+    /// Create from a raw nalgebra Vector3.
+    #[inline(always)]
+    pub fn from_raw_unchecked(value: Vector3<f64>) -> Self {
+        Self {
+            value,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Extract the raw nalgebra Vector3.
+    #[inline(always)]
+    pub fn into_raw(self) -> Vector3<f64> {
+        self.value
+    }
+
+    /// Borrow the raw nalgebra Vector3.
+    #[inline(always)]
+    pub fn as_raw(&self) -> &Vector3<f64> {
+        &self.value
+    }
+
+    /// X component.
+    #[inline(always)]
+    pub fn x(&self) -> f64 {
+        self.value.x
+    }
+
+    /// Y component.
+    #[inline(always)]
+    pub fn y(&self) -> f64 {
+        self.value.y
+    }
+
+    /// Z component.
+    #[inline(always)]
+    pub fn z(&self) -> f64 {
+        self.value.z
+    }
+
+    /// Euclidean norm.
+    #[inline(always)]
+    pub fn norm(&self) -> Scalar<D> {
+        Scalar::from_raw_unchecked(self.value.norm())
+    }
+
+    /// Squared norm. Returns scalar with dimension D².
+    #[inline(always)]
+    pub fn norm_squared<D2>(&self) -> Scalar<D2>
+    where
+        D: DimMultiply<D, Output = D2>,
+    {
+        Scalar::from_raw_unchecked(self.value.norm_squared())
+    }
+}
+
+// ---- Heterogeneous dot product (same frame required) ----
+
+impl<F, D1> FrameVec<F, D1> {
+    /// Dot product. Same frame required, dimensions may differ.
+    #[inline(always)]
+    pub fn dot<D2>(&self, rhs: &FrameVec<F, D2>) -> Scalar<<D1 as DimMultiply<D2>>::Output>
+    where
+        D1: DimMultiply<D2>,
+    {
+        Scalar::from_raw_unchecked(self.value.dot(&rhs.value))
+    }
+
+    /// Cross product. Same frame required, dimensions may differ.
+    #[inline(always)]
+    pub fn cross<D2>(
+        &self,
+        rhs: &FrameVec<F, D2>,
+    ) -> FrameVec<F, <D1 as DimMultiply<D2>>::Output>
+    where
+        D1: DimMultiply<D2>,
+    {
+        FrameVec::from_raw_unchecked(self.value.cross(&rhs.value))
+    }
+}
+
+// ---- Same-frame, same-dimension add/sub ----
+
+impl<F, D> Add for FrameVec<F, D> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Self {
+        Self::from_raw_unchecked(self.value + rhs.value)
+    }
+}
+
+impl<F, D> Sub for FrameVec<F, D> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> Self {
+        Self::from_raw_unchecked(self.value - rhs.value)
+    }
+}
+
+impl<F, D> Neg for FrameVec<F, D> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(self) -> Self {
+        Self::from_raw_unchecked(-self.value)
+    }
+}
+
+// ---- Scalar multiplication (cross-dimension, preserves frame) ----
+
+impl<F, L1, M1, T1, I1, Th1, N1, J1, L2, M2, T2, I2, Th2, N2, J2>
+    Mul<FrameVec<F, Dim<L2, M2, T2, I2, Th2, N2, J2>>>
+    for Scalar<Dim<L1, M1, T1, I1, Th1, N1, J1>>
+where
+    Dim<L1, M1, T1, I1, Th1, N1, J1>: DimMultiply<Dim<L2, M2, T2, I2, Th2, N2, J2>>,
+{
+    type Output = FrameVec<
+        F,
+        <Dim<L1, M1, T1, I1, Th1, N1, J1> as DimMultiply<
+            Dim<L2, M2, T2, I2, Th2, N2, J2>,
+        >>::Output,
+    >;
+    #[inline(always)]
+    fn mul(self, rhs: FrameVec<F, Dim<L2, M2, T2, I2, Th2, N2, J2>>) -> Self::Output {
+        FrameVec::from_raw_unchecked(rhs.value * self.into_raw())
+    }
+}
+
+// ---- f64 scaling ----
+
+impl<F, D> Mul<f64> for FrameVec<F, D> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: f64) -> Self {
+        Self::from_raw_unchecked(self.value * rhs)
+    }
+}
+
+impl<F, D> Mul<FrameVec<F, D>> for f64 {
+    type Output = FrameVec<F, D>;
+    #[inline(always)]
+    fn mul(self, rhs: FrameVec<F, D>) -> FrameVec<F, D> {
+        FrameVec::from_raw_unchecked(rhs.value * self)
+    }
+}
