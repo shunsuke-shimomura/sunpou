@@ -1,0 +1,13 @@
+error[E0277]: cannot multiply `UnitMat<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3>` by `UnitVec<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3>`
+  --> tests/compile_fail/mat_vec_wrong_dim.rs:11:15
+   |
+11 |     let _ = m * v;
+   |               ^ no implementation for `UnitMat<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3> * UnitVec<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3>`
+   |
+   = help: the trait `Mul<UnitVec<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3>>` is not implemented for `UnitMat<uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3>`
+   = help: the following other types implement trait `Mul<Rhs>`:
+             `&UnitMat<DR, DC, R, C>` implements `Mul<&UnitVec<DC, C>>`
+             `&UnitMat<DR, DM, R, K>` implements `Mul<&UnitMat<DM, DC, K, C>>`
+             `UnitMat<DR, DC, R, C>` implements `Mul<UnitVec<DC, C>>`
+             `UnitMat<DR, DC, R, C>` implements `Mul<f64>`
+             `UnitMat<DR, DM, R, K>` implements `Mul<UnitMat<DM, DC, K, C>>`

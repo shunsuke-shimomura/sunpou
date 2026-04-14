@@ -1,0 +1,19 @@
+[package]
+name = "uolgebra"
+version = "0.1.0"
+edition = "2024"
+description = "Unit-aware linear algebra library with compile-time SI dimension checking"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+typenum = { version = "1", default-features = false }
+nalgebra = { version = "0.33", default-features = false, features = ["libm"] }
+
+[dev-dependencies]
+uom = { version = "0.36", default-features = false, features = ["f64", "si"] }
+criterion = { version = "0.5", features = ["html_reports"] }
+trybuild = "1"
+
+[[bench]]
+name = "zero_cost"
+harness = false
