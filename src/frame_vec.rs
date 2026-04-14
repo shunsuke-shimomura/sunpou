@@ -28,6 +28,19 @@ impl<F, D> core::fmt::Debug for FrameVec<F, D> {
     }
 }
 
+impl<F, D> core::fmt::Display for FrameVec<F, D> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "[{}, {}, {}]", self.value.x, self.value.y, self.value.z)
+    }
+}
+
+impl<F, D> Default for FrameVec<F, D> {
+    #[inline(always)]
+    fn default() -> Self {
+        Self::from_raw_unchecked(Vector3::zeros())
+    }
+}
+
 impl<F, D> FrameVec<F, D> {
     /// Create from components. Caller ensures SI base units and correct frame.
     #[inline(always)]

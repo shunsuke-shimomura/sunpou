@@ -38,6 +38,19 @@ impl<D> core::fmt::Debug for Scalar<D> {
     }
 }
 
+impl<D> core::fmt::Display for Scalar<D> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(&self.value, f)
+    }
+}
+
+impl<D> Default for Scalar<D> {
+    #[inline(always)]
+    fn default() -> Self {
+        Self::from_raw_unchecked(0.0)
+    }
+}
+
 impl<D> Scalar<D> {
     /// Create a scalar from a raw `f64`. The caller must ensure the value
     /// is expressed in SI base units for dimension `D`.
