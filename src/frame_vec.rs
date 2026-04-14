@@ -1,7 +1,7 @@
 //! Frame-tagged 3D vector with SI dimension.
 
 use core::marker::PhantomData;
-use core::ops::{Add, Mul, Neg, Sub};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 use nalgebra::Vector3;
 
 use crate::dim::{Dim, DimMultiply};
@@ -91,6 +91,18 @@ impl<F, D> FrameVec<F, D> {
     {
         Scalar::from_raw_unchecked(self.value.norm_squared())
     }
+
+    /// Normalize to unit length. Returns a dimensionless frame vector.
+    /// Returns `None` if the vector is zero.
+    #[inline(always)]
+    pub fn try_normalize(
+        &self,
+        min_norm: f64,
+    ) -> Option<FrameVec<F, crate::aliases::Dimensionless>> {
+        self.value
+            .try_normalize(min_norm)
+            .map(FrameVec::from_raw_unchecked)
+    }
 }
 
 // ---- Heterogeneous dot product (same frame required) ----
@@ -179,5 +191,46 @@ impl<F, D> Mul<FrameVec<F, D>> for f64 {
     #[inline(always)]
     fn mul(self, rhs: FrameVec<F, D>) -> FrameVec<F, D> {
         FrameVec::from_raw_unchecked(rhs.value * self)
+    }
+}
+
+// ---- Compound assignment ----
+
+impl<F, D> AddAssign for FrameVec<F, D> {
+    #[inline(always)]
+    fn add_assign(&mut self, rhs: Self) {
+        self.value += rhs.value;
+    }
+}
+
+impl<F, D> SubAssign for FrameVec<F, D> {
+    #[inline(always)]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.value -= rhs.value;
+    }
+}
+
+impl<F, D> MulAssign<f64> for FrameVec<F, D> {
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: f64) {
+        self.value *= rhs;
+    }
+}
+
+// ---- Reference ops ----
+
+impl<F, D> Add for &FrameVec<F, D> {
+    type Output = FrameVec<F, D>;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> FrameVec<F, D> {
+        FrameVec::from_raw_unchecked(self.value + rhs.value)
+    }
+}
+
+impl<F, D> Sub for &FrameVec<F, D> {
+    type Output = FrameVec<F, D>;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> FrameVec<F, D> {
+        FrameVec::from_raw_unchecked(self.value - rhs.value)
     }
 }

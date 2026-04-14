@@ -1,7 +1,7 @@
 //! Unit-aware scalar type.
 
 use core::marker::PhantomData;
-use core::ops::{Add, Mul, Neg, Sub, Div};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign, Div, DivAssign};
 use crate::dim::{Dim, DimDivide, DimMultiply};
 
 /// A scalar value tagged with SI dimension `D`.
@@ -153,5 +153,53 @@ impl<D> Mul<Scalar<D>> for f64 {
     #[inline(always)]
     fn mul(self, rhs: Scalar<D>) -> Scalar<D> {
         Scalar::from_raw_unchecked(self * rhs.value)
+    }
+}
+
+// ---- Compound assignment (same-dimension) ----
+
+impl<D> AddAssign for Scalar<D> {
+    #[inline(always)]
+    fn add_assign(&mut self, rhs: Self) {
+        self.value += rhs.value;
+    }
+}
+
+impl<D> SubAssign for Scalar<D> {
+    #[inline(always)]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.value -= rhs.value;
+    }
+}
+
+impl<D> MulAssign<f64> for Scalar<D> {
+    #[inline(always)]
+    fn mul_assign(&mut self, rhs: f64) {
+        self.value *= rhs;
+    }
+}
+
+impl<D> DivAssign<f64> for Scalar<D> {
+    #[inline(always)]
+    fn div_assign(&mut self, rhs: f64) {
+        self.value /= rhs;
+    }
+}
+
+// ---- Reference ops ----
+
+impl<D> Add for &Scalar<D> {
+    type Output = Scalar<D>;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Scalar<D> {
+        Scalar::from_raw_unchecked(self.value + rhs.value)
+    }
+}
+
+impl<D> Sub for &Scalar<D> {
+    type Output = Scalar<D>;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> Scalar<D> {
+        Scalar::from_raw_unchecked(self.value - rhs.value)
     }
 }
