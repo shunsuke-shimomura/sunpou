@@ -38,7 +38,33 @@ impl<D, const N: usize> core::fmt::Debug for UnitVec<D, N> {
     }
 }
 
+impl<D, const N: usize> core::fmt::Display for UnitVec<D, N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "[")?;
+        for (i, v) in self.value.iter().enumerate() {
+            if i > 0 {
+                write!(f, ", ")?;
+            }
+            core::fmt::Display::fmt(v, f)?;
+        }
+        write!(f, "]")
+    }
+}
+
+impl<D, const N: usize> Default for UnitVec<D, N> {
+    #[inline(always)]
+    fn default() -> Self {
+        Self::zeros()
+    }
+}
+
 impl<D, const N: usize> UnitVec<D, N> {
+    /// Create from a slice. Panics if `slice.len() != N`.
+    #[inline(always)]
+    pub fn from_slice(slice: &[f64]) -> Self {
+        Self::from_raw_unchecked(SVector::from_column_slice(slice))
+    }
+
     /// Create from a raw nalgebra vector. Caller ensures SI base units.
     #[inline(always)]
     pub fn from_raw_unchecked(value: SVector<f64, N>) -> Self {

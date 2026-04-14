@@ -103,3 +103,71 @@ fn acceleration_from_velocity_div_time() {
         our_accel.into_raw()
     );
 }
+
+#[test]
+fn power_from_energy_div_time() {
+    use uom::si::energy::joule;
+    use uom::si::f64::{Energy as UomEnergy, Power as UomPower, Time as UomTime};
+    use uom::si::power::watt;
+    use uom::si::time::second;
+
+    let uom_energy = UomEnergy::new::<joule>(1000.0);
+    let uom_time = UomTime::new::<second>(10.0);
+    let uom_power: UomPower = uom_energy / uom_time;
+
+    let our_energy = Scalar::<Energy>::from_raw_unchecked(1000.0);
+    let our_time = Scalar::<Time>::from_raw_unchecked(10.0);
+    let our_power: Scalar<Power> = our_energy / our_time;
+
+    assert_eq!(uom_power.get::<watt>(), our_power.into_raw());
+}
+
+#[test]
+fn torque_from_force_times_length() {
+    use uom::si::f64::{Force as UomForce, Length as UomLength, Torque as UomTorque};
+    use uom::si::force::newton;
+    use uom::si::length::meter;
+    use uom::si::torque::newton_meter;
+
+    let uom_force = UomForce::new::<newton>(25.0);
+    let uom_len = UomLength::new::<meter>(2.0);
+    let uom_torque: UomTorque = (uom_force * uom_len).into();
+
+    let our_force = Scalar::<Force>::from_raw_unchecked(25.0);
+    let our_len = Scalar::<Length>::from_raw_unchecked(2.0);
+    let our_torque: Scalar<Torque> = our_force * our_len;
+
+    assert_eq!(uom_torque.get::<newton_meter>(), our_torque.into_raw());
+}
+
+#[test]
+fn chained_operations() {
+    // v = d / t, F = m * a, W = F * d, P = W / t
+    use uom::si::f64::{
+        Acceleration as UomAccel, Length as UomLength, Mass as UomMass,
+        Power as UomPower, Time as UomTime,
+    };
+    use uom::si::acceleration::meter_per_second_squared;
+    use uom::si::length::meter;
+    use uom::si::mass::kilogram;
+    use uom::si::power::watt;
+    use uom::si::time::second;
+
+    let m = 10.0;
+    let a = 5.0;
+    let d = 20.0;
+    let t = 4.0;
+
+    // uom chain
+    let uom_force = UomMass::new::<kilogram>(m) * UomAccel::new::<meter_per_second_squared>(a);
+    let uom_work = uom_force * UomLength::new::<meter>(d);
+    let uom_power: UomPower = uom_work / UomTime::new::<second>(t);
+
+    // our chain
+    let our_force: Scalar<Force> =
+        Scalar::<Mass>::from_raw_unchecked(m) * Scalar::<Acceleration>::from_raw_unchecked(a);
+    let our_work: Scalar<Energy> = our_force * Scalar::<Length>::from_raw_unchecked(d);
+    let our_power: Scalar<Power> = our_work / Scalar::<Time>::from_raw_unchecked(t);
+
+    assert_eq!(uom_power.get::<watt>(), our_power.into_raw());
+}

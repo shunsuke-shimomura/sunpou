@@ -82,4 +82,17 @@ impl<F1, F2> Rotation<F1, F2> {
     pub fn then<F3>(&self, other: &Rotation<F2, F3>) -> Rotation<F1, F3> {
         Rotation::from_raw_unchecked(other.quat * self.quat)
     }
+
+    /// Convert to a 3×3 rotation matrix (dimensionless).
+    #[inline(always)]
+    pub fn to_matrix(
+        &self,
+    ) -> crate::unit_mat::UnitMat<
+        crate::aliases::Dimensionless,
+        crate::aliases::Dimensionless,
+        3,
+        3,
+    > {
+        crate::unit_mat::UnitMat::from_raw_unchecked(*self.quat.to_rotation_matrix().matrix())
+    }
 }
