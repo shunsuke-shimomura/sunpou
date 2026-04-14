@@ -216,3 +216,19 @@ impl<D> Sub for &Scalar<D> {
         Scalar::from_raw_unchecked(self.value - rhs.value)
     }
 }
+
+// ---- Dimensionless Scalar from f64 ----
+
+impl From<f64> for Scalar<crate::aliases::Dimensionless> {
+    #[inline(always)]
+    fn from(value: f64) -> Self {
+        Self::from_raw_unchecked(value)
+    }
+}
+
+impl From<Scalar<crate::aliases::Dimensionless>> for f64 {
+    #[inline(always)]
+    fn from(s: Scalar<crate::aliases::Dimensionless>) -> f64 {
+        s.value
+    }
+}

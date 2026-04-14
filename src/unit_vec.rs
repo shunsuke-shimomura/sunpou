@@ -1,7 +1,7 @@
 //! Unit-aware N-dimensional vector.
 
 use core::marker::PhantomData;
-use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use core::ops::{Add, AddAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 use nalgebra::SVector;
 
 use crate::dim::{Dim, DimMultiply};
@@ -84,6 +84,24 @@ impl<D, const N: usize> UnitVec<D, N> {
     #[inline(always)]
     pub fn as_raw(&self) -> &SVector<f64, N> {
         &self.value
+    }
+
+    /// Iterate over components as `f64` references.
+    #[inline(always)]
+    pub fn iter(&self) -> impl Iterator<Item = &f64> {
+        self.value.iter()
+    }
+
+    /// Number of components.
+    #[inline(always)]
+    pub fn len(&self) -> usize {
+        N
+    }
+
+    /// Always false (N is const > 0 in practice, but needed for clippy).
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        N == 0
     }
 
     /// Create a zero vector.
@@ -275,5 +293,15 @@ impl<D, const N: usize> Sub for &UnitVec<D, N> {
     #[inline(always)]
     fn sub(self, rhs: Self) -> UnitVec<D, N> {
         UnitVec::from_raw_unchecked(self.value - rhs.value)
+    }
+}
+
+// ---- Indexing ----
+
+impl<D, const N: usize> Index<usize> for UnitVec<D, N> {
+    type Output = f64;
+    #[inline(always)]
+    fn index(&self, index: usize) -> &f64 {
+        &self.value[index]
     }
 }
