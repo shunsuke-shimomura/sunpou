@@ -12,10 +12,24 @@ use crate::scalar::Scalar;
 /// Frame markers are user-defined zero-sized types. This type is independent
 /// of any specific frame library (e.g. arika).
 #[repr(transparent)]
-#[derive(Clone, Copy, PartialEq)]
 pub struct FrameVec<F, D> {
     value: Vector3<f64>,
     _marker: PhantomData<(F, D)>,
+}
+
+impl<F, D> Clone for FrameVec<F, D> {
+    #[inline(always)]
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<F, D> Copy for FrameVec<F, D> {}
+
+impl<F, D> PartialEq for FrameVec<F, D> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
 }
 
 impl<F, D> core::fmt::Debug for FrameVec<F, D> {

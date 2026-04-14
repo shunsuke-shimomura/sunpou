@@ -1,0 +1,13 @@
+error[E0277]: cannot multiply `FrameUnitMat<Eci, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3>` by `FrameVec<Ecef, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>>`
+  --> tests/compile_fail/frame_mat_wrong_frame.rs:18:17
+   |
+18 |     let _ = stm * v;
+   |                 ^ no implementation for `FrameUnitMat<Eci, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3> * FrameVec<Ecef, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>>`
+   |
+   = help: the trait `Mul<FrameVec<Ecef, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>>>` is not implemented for `FrameUnitMat<Eci, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>, typenum::int::Z0, typenum::int::NInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, uolgebra::dim::Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, 3, 3>`
+   = help: the following other types implement trait `Mul<Rhs>`:
+             `&FrameUnitMat<F, DR, DC, 3, 3>` implements `Mul<&FrameVec<F, DC>>`
+             `&FrameUnitMat<F, DR, DM, R, K>` implements `Mul<&FrameUnitMat<F, DM, DC, K, C>>`
+             `FrameUnitMat<F, DR, DC, 3, 3>` implements `Mul<FrameVec<F, DC>>`
+             `FrameUnitMat<F, DR, DC, R, C>` implements `Mul<f64>`
+             `FrameUnitMat<F, DR, DM, R, K>` implements `Mul<FrameUnitMat<F, DM, DC, K, C>>`

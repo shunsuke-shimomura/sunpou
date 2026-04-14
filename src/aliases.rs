@@ -34,5 +34,8 @@ pub type Torque = Dim<P2, P1, N2>;
 pub type AngularMomentum = Dim<P2, P1, N1>;
 
 // ---- Useful compound dimensions ----
+/// Angular acceleration: rad/s² (1/s²)
+pub type AngularAcceleration = Dim<Z0, Z0, N2>;
+
 /// Length × Velocity = m²/s (specific angular momentum)
 pub type LengthVelocity = Dim<P2, Z0, N1>;
