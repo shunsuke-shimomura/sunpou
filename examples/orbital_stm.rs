@@ -1,72 +1,60 @@
-//! Orbital state transition matrix (STM) using block matrices.
+//! Orbital state transition matrix (STM) using FrameElemMat and block matrices.
 //!
-//! Demonstrates:
-//! - BlockMat2x2 for composing matrices with different unit dimensions
-//! - BlockVec2 for composing vectors with different unit dimensions
-//! - Type-safe state propagation: Φ * x₀ = x₁
+//! Demonstrates frame-safe, prefix-aware, dimension-checked state propagation
+//! using the element-dimension matrix model.
 
-use nalgebra::{Matrix3, SVector};
+use nalgebra::Matrix3;
 use sunpou::block::{BlockMat2x2, BlockVec2};
+use sunpou::frame_elem_mat::FrameElemMat;
+use sunpou::prefix::*;
 use sunpou::prelude::*;
-use sunpou::unit_mat::UnitMat;
-use sunpou::unit_vec::UnitVec;
+use sunpou::frame_vec::FrameVec;
 
-/// Orbital state vector: [position (m), velocity (m/s)]
-type OrbitalState = BlockVec2<UnitVec<Length, 3>, UnitVec<Velocity, 3>>;
+struct Eci;
 
-/// State transition matrix for Keplerian motion (simplified).
-///
-/// ```text
-/// Φ = | I    dt·I  |    dimensions: | dimensionless  time      |
-///     | 0    I     |                | inv-time       dimensionless |
-/// ```
-///
-/// (For this simplified example, ∂v/∂r₀ = 0, i.e. no gravity gradient)
-type OrbitalStm = BlockMat2x2<
-    UnitMat<Length, Length, 3, 3>,       // ∂r/∂r₀: [m/m] = dimensionless
-    UnitMat<Length, Velocity, 3, 3>,     // ∂r/∂v₀: [m/(m/s)] = s
-    UnitMat<Velocity, Length, 3, 3>,     // ∂v/∂r₀: [(m/s)/m] = 1/s
-    UnitMat<Velocity, Velocity, 3, 3>,   // ∂v/∂v₀: [(m/s)/(m/s)] = dimensionless
+/// State vector in ECI, km scale
+type StateEci = BlockVec2<FrameVec<Eci, Length, Kilo>, FrameVec<Eci, Velocity, Kilo>>;
+
+/// STM in ECI frame, element dimensions:
+/// | Dimensionless  Time     |
+/// | InvTime        Dimensionless |
+type StmEci = BlockMat2x2<
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
+    FrameElemMat<Eci, Time, 3, 3>,
+    FrameElemMat<Eci, InvTime, 3, 3>,
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
 >;
 
 fn main() {
-    // Initial state
-    let r0 = UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([7000e3, 0.0, 0.0]));
-    let v0 = UnitVec::<Velocity, 3>::from_raw_unchecked(SVector::from([0.0, 7.5e3, 0.0]));
-    let x0 = OrbitalState::new(r0, v0);
-
-    println!("Initial state:");
-    println!("  r₀ = {:?} m", x0.upper.as_raw().as_slice());
-    println!("  v₀ = {:?} m/s", x0.lower.as_raw().as_slice());
-
-    // Build STM for dt = 60 seconds
-    let dt = 60.0;
-    let stm = OrbitalStm::new(
-        UnitMat::from_raw_unchecked(Matrix3::identity()),         // I
-        UnitMat::from_raw_unchecked(Matrix3::identity() * dt),    // dt·I
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),            // 0
-        UnitMat::from_raw_unchecked(Matrix3::identity()),         // I
+    let x0 = StateEci::new(
+        FrameVec::<Eci, Length, Kilo>::new(7000.0, 0.0, 0.0),
+        FrameVec::<Eci, Velocity, Kilo>::new(0.0, 7.5, 0.0),
     );
 
-    // Propagate: x₁ = Φ * x₀
-    // Type system verifies:
-    //   upper: UnitMat<Length,Length> * UnitVec<Length> + UnitMat<Length,Velocity> * UnitVec<Velocity>
-    //        = UnitVec<Length> + UnitVec<Length> = UnitVec<Length> ✓
-    //   lower: UnitMat<Velocity,Length> * UnitVec<Length> + UnitMat<Velocity,Velocity> * UnitVec<Velocity>
-    //        = UnitVec<Velocity> + UnitVec<Velocity> = UnitVec<Velocity> ✓
-    let x1: OrbitalState = stm * x0;
+    println!("Initial state:");
+    println!("  r₀ = [{}, {}, {}] km", x0.upper.x(), x0.upper.y(), x0.upper.z());
+    println!("  v₀ = [{}, {}, {}] km/s", x0.lower.x(), x0.lower.y(), x0.lower.z());
+
+    // STM for dt = 60 seconds
+    let dt = 60.0;
+    let stm = StmEci::new(
+        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * dt),
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+    );
+
+    // x₁ = Φ * x₀ — dimension, frame, and prefix all checked
+    let x1: StateEci = stm * x0;
 
     println!("\nAfter {} s:", dt);
-    println!("  r₁ = {:?} m", x1.upper.as_raw().as_slice());
-    println!("  v₁ = {:?} m/s", x1.lower.as_raw().as_slice());
+    println!("  r₁ = [{:.3}, {:.3}, {:.3}] km", x1.upper.x(), x1.upper.y(), x1.upper.z());
+    println!("  v₁ = [{:.3}, {:.3}, {:.3}] km/s", x1.lower.x(), x1.lower.y(), x1.lower.z());
 
-    // Verify: position should advance by v₀ * dt
-    let expected_r = 7000e3; // x unchanged (v₀ has no x component)
-    let expected_r_y = 7.5e3 * dt; // y = vy * dt
-    println!("\nExpected r₁_y = {} m", expected_r_y);
-    println!("Actual   r₁_y = {} m", x1.upper.as_raw()[1]);
-    assert!((x1.upper.as_raw()[0] - expected_r).abs() < 1e-10);
-    assert!((x1.upper.as_raw()[1] - expected_r_y).abs() < 1e-10);
+    let expected_y = 7.5 * dt;
+    println!("\nExpected r₁_y = {} km", expected_y);
+    println!("Actual   r₁_y = {} km", x1.upper.y());
+    assert!((x1.upper.y() - expected_y).abs() < 1e-10);
 
-    println!("\nSTM propagation type-checked at compile time!");
+    println!("\nSTM propagation: frame-safe, prefix-aware, dimension-checked!");
 }

@@ -1,83 +1,87 @@
-//! Extended Kalman Filter (EKF) with type-safe covariance propagation.
+//! Extended Kalman Filter (EKF) with frame-safe, prefix-aware covariance propagation.
 //!
-//! Demonstrates the full EKF prediction step with compile-time unit checking:
+//! Demonstrates the full EKF prediction step:
 //! - State propagation: x₁ = Φ * x₀
 //! - Covariance propagation: P₁ = Φ * P₀ * Φᵀ + Q
 //!
-//! All matrix dimensions are verified at compile time.
+//! All dimensions, frames, and prefixes are verified at compile time.
+//! Uses ElemMat (element-dimension model) — no rescale_dims needed.
 
-use nalgebra::{Matrix3, SVector};
-use sunpou::block::{BlockMat2x2, BlockVec2};
+use nalgebra::Matrix3;
+use sunpou::block::BlockMat2x2;
+use sunpou::block::BlockVec2;
+use sunpou::frame_elem_mat::FrameElemMat;
+use sunpou::prefix::*;
 use sunpou::prelude::*;
-use sunpou::unit_mat::UnitMat;
-use sunpou::unit_vec::UnitVec;
+use sunpou::frame_vec::FrameVec;
 
-// Type aliases for the orbital EKF
+struct Eci;
 
-/// State vector: [position, velocity]
-type State = BlockVec2<UnitVec<Length, 3>, UnitVec<Velocity, 3>>;
+// ---- Type aliases ----
 
-/// State transition matrix
+/// State vector in ECI, km scale
+type State = BlockVec2<FrameVec<Eci, Length, Kilo>, FrameVec<Eci, Velocity, Kilo>>;
+
+/// STM block element dimensions:
+/// | Dimensionless  Time     |
+/// | InvTime        Dimensionless |
 type Stm = BlockMat2x2<
-    UnitMat<Length, Length, 3, 3>,
-    UnitMat<Length, Velocity, 3, 3>,
-    UnitMat<Velocity, Length, 3, 3>,
-    UnitMat<Velocity, Velocity, 3, 3>,
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
+    FrameElemMat<Eci, Time, 3, 3>,
+    FrameElemMat<Eci, InvTime, 3, 3>,
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
 >;
 
-/// Covariance matrix: P[i][j] has dimension dim(state[i]) * dim(state[j])
+/// Covariance block element dimensions:
+/// P_rr: Dimensionless (km² / km² when row=col=Length)
+///   ... but actually the covariance P[i][j] = E[δx_i δx_j]
+///   For position error (km), P_rr has units km² → element dim = Dimensionless (since row/col are both Length)
 ///
-/// ```text
-/// P = | P_rr [m²]       P_rv [m·(m/s)]     |
-///     | P_vr [(m/s)·m]   P_vv [(m/s)²]      |
-/// ```
+/// More precisely, with ElemMat model:
+///   Φ P Φᵀ requires element dims to compose correctly.
+///   P_rr: elem dim = Dimensionless (same as Φ_rr)
+///   P_rv: elem dim = Time (same as Φ_rv)
+///   P_vr: elem dim = InvTime
+///   P_vv: elem dim = Dimensionless
 type Covariance = BlockMat2x2<
-    UnitMat<Length, Length, 3, 3>,
-    UnitMat<Length, Velocity, 3, 3>,
-    UnitMat<Velocity, Length, 3, 3>,
-    UnitMat<Velocity, Velocity, 3, 3>,
->;
-
-/// STM transpose type (computed via BlockMat2x2::transpose())
-type StmTranspose = BlockMat2x2<
-    UnitMat<Length, Length, 3, 3>,
-    UnitMat<Length, Velocity, 3, 3>,
-    UnitMat<Velocity, Length, 3, 3>,
-    UnitMat<Velocity, Velocity, 3, 3>,
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
+    FrameElemMat<Eci, Time, 3, 3>,
+    FrameElemMat<Eci, InvTime, 3, 3>,
+    FrameElemMat<Eci, Dimensionless, 3, 3>,
 >;
 
 fn main() {
-    println!("=== EKF Prediction Step (Orbital Mechanics) ===\n");
+    println!("=== EKF Prediction Step (Orbital Mechanics, km scale) ===\n");
 
-    // Initial state
+    // Initial state in km
     let x0 = State::new(
-        UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([7000e3, 0.0, 0.0])),
-        UnitVec::<Velocity, 3>::from_raw_unchecked(SVector::from([0.0, 7.5e3, 0.0])),
+        FrameVec::new(7000.0, 0.0, 0.0),    // 7000 km
+        FrameVec::new(0.0, 7.5, 0.0),       // 7.5 km/s
     );
 
-    // Initial covariance
+    // Initial covariance (in km²/km·(km/s)/(km/s)² units via prefixes)
     let p0 = Covariance::new(
-        UnitMat::from_raw_unchecked(Matrix3::identity() * 100.0), // σ_r² = 100 m²
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::identity() * 0.01), // σ_v² = 0.01 (m/s)²
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 0.01),  // σ_r = 0.1 km → 0.01 km²
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-6),  // σ_v = 0.001 km/s → 1e-6
     );
 
     // Process noise
     let q = Covariance::new(
-        UnitMat::from_raw_unchecked(Matrix3::identity() * 1.0), // 1 m²
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::identity() * 0.001), // 0.001 (m/s)²
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-4),
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-8),
     );
 
-    // State transition matrix (dt = 60 s)
+    // STM (dt = 60 s)
     let dt = 60.0;
     let phi = Stm::new(
-        UnitMat::from_raw_unchecked(Matrix3::identity()),
-        UnitMat::from_raw_unchecked(Matrix3::identity() * dt),
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity() * dt),
+        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
+        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
     );
 
     // === Prediction Step ===
@@ -86,28 +90,23 @@ fn main() {
     let x1: State = phi * x0;
 
     // Covariance propagation: P₁ = Φ * P₀ * Φᵀ + Q
-    // Step 1: Φ * P₀
     let phi_p0: Covariance = phi * p0;
-    // Step 2: (Φ * P₀) * Φᵀ — uses BlockMat2x2::transpose()
-    let phi_t: StmTranspose = phi.transpose();
+    let phi_t = phi.transpose();
     let phi_p0_phit: Covariance = phi_p0 * phi_t;
-    // Step 3: + Q
     let p1: Covariance = phi_p0_phit + q;
 
     // === Output ===
 
     println!("State (after {} s):", dt);
-    println!("  r = {:?} m", x1.upper.as_raw().as_slice());
-    println!("  v = {:?} m/s", x1.lower.as_raw().as_slice());
+    println!("  r = [{:.3}, {:.3}, {:.3}] km", x1.upper.x(), x1.upper.y(), x1.upper.z());
+    println!("  v = [{:.4}, {:.4}, {:.4}] km/s", x1.lower.x(), x1.lower.y(), x1.lower.z());
 
-    println!("\nCovariance P₁:");
-    println!("  P_rr diagonal = [{:.2}, {:.2}, {:.2}] m²",
+    println!("\nCovariance P₁ (km units):");
+    println!("  P_rr diagonal = [{:.6}, {:.6}, {:.6}] km²",
         p1.a.as_raw()[(0, 0)], p1.a.as_raw()[(1, 1)], p1.a.as_raw()[(2, 2)]);
-    println!("  P_vv diagonal = [{:.4}, {:.4}, {:.4}] (m/s)²",
+    println!("  P_vv diagonal = [{:.2e}, {:.2e}, {:.2e}] (km/s)²",
         p1.d.as_raw()[(0, 0)], p1.d.as_raw()[(1, 1)], p1.d.as_raw()[(2, 2)]);
+    println!("  P_rv[0,0] = {:.6} km·(km/s)", p1.b.as_raw()[(0, 0)]);
 
-    // Cross-covariance should now be non-zero due to STM coupling
-    println!("  P_rv[0,0] = {:.2} m·(m/s)", p1.b.as_raw()[(0, 0)]);
-
-    println!("\n=== All EKF operations type-checked at compile time! ===");
+    println!("\n=== All EKF operations: frame-safe, prefix-aware, dimension-checked! ===");
 }

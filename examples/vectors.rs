@@ -1,46 +1,44 @@
-//! Vector operations with heterogeneous-dimension dot and cross products.
-//!
-//! Demonstrates:
-//! - UnitVec with dimension tagging
-//! - Same-dimension and cross-dimension dot product
-//! - Cross product producing correct output dimension
+//! Vector operations with heterogeneous-dimension dot/cross products and prefixes.
 
-use nalgebra::SVector;
+use sunpou::prefix::*;
 use sunpou::prelude::*;
 use sunpou::scalar::Scalar;
 use sunpou::unit_vec::UnitVec;
 
 fn main() {
-    // Position and velocity vectors
-    let pos = UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([7000e3, 0.0, 0.0]));
-    let vel = UnitVec::<Velocity, 3>::from_raw_unchecked(SVector::from([0.0, 7.5e3, 0.0]));
+    // Position and velocity in km scale (natural for orbital mechanics)
+    let pos = UnitVec::<Length, 3, Kilo>::new(7000.0, 0.0, 0.0); // 7000 km
+    let vel = UnitVec::<Velocity, 3, Kilo>::new(0.0, 7.5, 0.0);  // 7.5 km/s
 
-    // Same-dimension addition
-    let pos2 = UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([0.0, 100.0, 0.0]));
+    // Same-prefix addition
+    let pos2 = UnitVec::<Length, 3, Kilo>::new(0.0, 0.1, 0.0);
     let total_pos = pos + pos2;
-    println!("pos + offset = {:?}", total_pos.as_raw().as_slice());
+    println!("pos + offset = [{}, {}, {}] km", total_pos.x(), total_pos.y(), total_pos.z());
 
-    // Heterogeneous cross product: r × v → specific angular momentum (m²/s)
-    let h: UnitVec<LengthVelocity, 3> = pos.cross(&vel);
-    println!("h = r × v = {:?} m²/s", h.as_raw().as_slice());
+    // Cross-dim, cross-prefix: r × v → specific angular momentum
+    // Kilo + Kilo = Mega
+    let h: UnitVec<LengthVelocity, 3, Mega> = pos.cross(&vel);
+    println!("h = r × v = [{}, {}, {}] Mm²/s", h.x(), h.y(), h.z());
 
     // Dot product: force · displacement → energy
-    let force = UnitVec::<Force, 3>::from_raw_unchecked(SVector::from([10.0, 0.0, 0.0]));
-    let disp = UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([5.0, 0.0, 0.0]));
-    let work: Scalar<Energy> = force.dot(&disp);
-    println!("W = F · d = {} J", work.into_raw());
+    let force = UnitVec::<Force, 3, Kilo>::new(10.0, 0.0, 0.0); // 10 kN
+    let disp = UnitVec::<Length, 3, Kilo>::new(5.0, 0.0, 0.0);  // 5 km
+    let work: Scalar<Energy, Mega> = force.dot(&disp); // Kilo+Kilo = Mega
+    println!("W = F · d = {} MJ", work.into_raw());
 
-    // Scalar × vector (cross-dimension)
-    let mass = Scalar::<Mass>::from_raw_unchecked(10.0);
-    let accel = UnitVec::<Acceleration, 3>::from_raw_unchecked(SVector::from([0.0, 0.0, 9.8]));
+    // Scalar × vector (cross-dimension, cross-prefix)
+    let mass = Scalar::<Mass>::from_raw_unchecked(10.0); // 10 kg (base)
+    let accel = UnitVec::<Acceleration, 3>::new(0.0, 0.0, 9.8);  // m/s² (base)
     let force_vec: UnitVec<Force, 3> = mass * accel;
-    println!("F = m * a = {:?} N", force_vec.as_raw().as_slice());
+    println!("F = m * a = [{}, {}, {}] N", force_vec.x(), force_vec.y(), force_vec.z());
 
-    // Norm
-    println!("|pos| = {} m", pos.norm().into_raw());
+    // Norm preserves prefix
+    let r: Scalar<Length, Kilo> = pos.norm();
+    println!("|pos| = {} km = {} m", r.into_raw(), r.to_base_value());
 
-    // The following would NOT compile:
-    // let _ = pos + vel;  // Length + Velocity → compile error
+    // Rescale vector
+    let pos_m: UnitVec<Length, 3, Base> = pos.rescale();
+    println!("pos in m = [{}, {}, {}]", pos_m.x(), pos_m.y(), pos_m.z());
 
     println!("\nAll vector operations type-checked at compile time!");
 }
