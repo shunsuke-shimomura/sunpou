@@ -1,44 +1,48 @@
-//! Unit-aware N-dimensional vector.
+//! Unit-aware N-dimensional vector with SI prefix support.
+//!
+//! `UnitVec<D, N, P>` stores N components in units of `10^P × [SI base unit for D]`.
+//! Default `P = Z0` for backward compatibility.
 
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
 use nalgebra::SVector;
+use typenum::{Integer, Z0};
 
 use crate::dim::{Dim, DimMultiply};
 use crate::scalar::Scalar;
 
-/// An N-dimensional vector with all components sharing SI dimension `D`.
+/// An N-dimensional vector with all components sharing SI dimension `D` and prefix `P`.
 #[repr(transparent)]
-pub struct UnitVec<D, const N: usize> {
+pub struct UnitVec<D, const N: usize, P = Z0> {
     value: SVector<f64, N>,
-    _dim: PhantomData<D>,
+    _marker: PhantomData<(D, P)>,
 }
 
-impl<D, const N: usize> Clone for UnitVec<D, N> {
+impl<D, const N: usize, P> Clone for UnitVec<D, N, P> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
-impl<D, const N: usize> Copy for UnitVec<D, N>
+impl<D, const N: usize, P> Copy for UnitVec<D, N, P>
 where
     SVector<f64, N>: Copy,
 {
 }
 
-impl<D, const N: usize> PartialEq for UnitVec<D, N> {
+impl<D, const N: usize, P> PartialEq for UnitVec<D, N, P> {
     fn eq(&self, other: &Self) -> bool {
         self.value == other.value
     }
 }
 
-impl<D, const N: usize> core::fmt::Debug for UnitVec<D, N> {
+impl<D, const N: usize, P> core::fmt::Debug for UnitVec<D, N, P> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "UnitVec({:?})", self.value.as_slice())
     }
 }
 
-impl<D, const N: usize> core::fmt::Display for UnitVec<D, N> {
+impl<D, const N: usize, P> core::fmt::Display for UnitVec<D, N, P> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "[")?;
         for (i, v) in self.value.iter().enumerate() {
@@ -51,26 +55,26 @@ impl<D, const N: usize> core::fmt::Display for UnitVec<D, N> {
     }
 }
 
-impl<D, const N: usize> Default for UnitVec<D, N> {
+impl<D, const N: usize, P> Default for UnitVec<D, N, P> {
     #[inline(always)]
     fn default() -> Self {
         Self::zeros()
     }
 }
 
-impl<D, const N: usize> UnitVec<D, N> {
+impl<D, const N: usize, P> UnitVec<D, N, P> {
     /// Create from a slice. Panics if `slice.len() != N`.
     #[inline(always)]
     pub fn from_slice(slice: &[f64]) -> Self {
         Self::from_raw_unchecked(SVector::from_column_slice(slice))
     }
 
-    /// Create from a raw nalgebra vector. Caller ensures SI base units.
+    /// Create from a raw nalgebra vector.
     #[inline(always)]
     pub fn from_raw_unchecked(value: SVector<f64, N>) -> Self {
         Self {
             value,
-            _dim: PhantomData,
+            _marker: PhantomData,
         }
     }
 
@@ -110,34 +114,40 @@ impl<D, const N: usize> UnitVec<D, N> {
         Self::from_raw_unchecked(SVector::zeros())
     }
 
-    /// Euclidean norm. Returns a scalar with the same dimension.
+    /// Euclidean norm. Returns a scalar with same dimension and prefix.
     #[inline(always)]
-    pub fn norm(&self) -> Scalar<D> {
+    pub fn norm(&self) -> Scalar<D, P> {
         Scalar::from_raw_unchecked(self.value.norm())
     }
 
-    /// Normalize to unit length. Returns a dimensionless unit vector.
-    /// Returns `None` if the vector is zero.
+    /// Normalize to unit length. Returns a dimensionless unit vector (base prefix).
     #[inline(always)]
-    pub fn try_normalize(&self, min_norm: f64) -> Option<UnitVec<crate::aliases::Dimensionless, N>> {
+    pub fn try_normalize(
+        &self,
+        min_norm: f64,
+    ) -> Option<UnitVec<crate::aliases::Dimensionless, N>> {
         self.value
             .try_normalize(min_norm)
             .map(UnitVec::from_raw_unchecked)
     }
 
-    /// Squared norm. Returns a scalar with dimension D².
+    /// Rescale to a different prefix. Multiplies all components by `10^(P - P2)`.
     #[inline(always)]
-    pub fn norm_squared<D2>(&self) -> Scalar<D2>
+    pub fn rescale<P2>(self) -> UnitVec<D, N, P2>
     where
-        D: DimMultiply<D, Output = D2>,
+        P: Sub<P2>,
+        <P as Sub<P2>>::Output: Integer,
     {
-        Scalar::from_raw_unchecked(self.value.norm_squared())
+        let factor = crate::prefix::pow10_i32(
+            <<P as Sub<P2>>::Output as Integer>::to_i64() as i32,
+        );
+        UnitVec::from_raw_unchecked(self.value * factor)
     }
 }
 
 // ---- Convenience constructors for 3D ----
 
-impl<D> UnitVec<D, 3> {
+impl<D, P> UnitVec<D, 3, P> {
     /// Create a 3D vector from components.
     #[inline(always)]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
@@ -163,37 +173,43 @@ impl<D> UnitVec<D, 3> {
     }
 }
 
-// ---- Heterogeneous dot product ----
+// ---- Heterogeneous dot product (cross-dim, cross-prefix) ----
 
-impl<D1, const N: usize> UnitVec<D1, N> {
-    /// Dot product with possibly different dimension.
-    /// `UnitVec<D1, N> · UnitVec<D2, N> → Scalar<DimMul<D1, D2>>`
+impl<D1, const N: usize, P1> UnitVec<D1, N, P1> {
+    /// Dot product: `UnitVec<D1, N, P1> · UnitVec<D2, N, P2> → Scalar<D1×D2, P1+P2>`
     #[inline(always)]
-    pub fn dot<D2>(&self, rhs: &UnitVec<D2, N>) -> Scalar<<D1 as DimMultiply<D2>>::Output>
+    pub fn dot<D2, P2>(
+        &self,
+        rhs: &UnitVec<D2, N, P2>,
+    ) -> Scalar<<D1 as DimMultiply<D2>>::Output, <P1 as Add<P2>>::Output>
     where
         D1: DimMultiply<D2>,
+        P1: Add<P2>,
     {
         Scalar::from_raw_unchecked(self.value.dot(&rhs.value))
     }
 }
 
-// ---- Heterogeneous cross product (3D only) ----
+// ---- Heterogeneous cross product (3D, cross-dim, cross-prefix) ----
 
-impl<D1> UnitVec<D1, 3> {
-    /// Cross product with possibly different dimension.
-    /// `UnitVec<D1, 3> × UnitVec<D2, 3> → UnitVec<DimMul<D1, D2>, 3>`
+impl<D1, P1> UnitVec<D1, 3, P1> {
+    /// Cross product: `UnitVec<D1, 3, P1> × UnitVec<D2, 3, P2> → UnitVec<D1×D2, 3, P1+P2>`
     #[inline(always)]
-    pub fn cross<D2>(&self, rhs: &UnitVec<D2, 3>) -> UnitVec<<D1 as DimMultiply<D2>>::Output, 3>
+    pub fn cross<D2, P2>(
+        &self,
+        rhs: &UnitVec<D2, 3, P2>,
+    ) -> UnitVec<<D1 as DimMultiply<D2>>::Output, 3, <P1 as Add<P2>>::Output>
     where
         D1: DimMultiply<D2>,
+        P1: Add<P2>,
     {
         UnitVec::from_raw_unchecked(self.value.cross(&rhs.value))
     }
 }
 
-// ---- Same-dimension add/sub ----
+// ---- Same-dimension, same-prefix add/sub ----
 
-impl<D, const N: usize> Add for UnitVec<D, N> {
+impl<D, const N: usize, P> Add for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
@@ -201,7 +217,7 @@ impl<D, const N: usize> Add for UnitVec<D, N> {
     }
 }
 
-impl<D, const N: usize> Sub for UnitVec<D, N> {
+impl<D, const N: usize, P> Sub for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
@@ -209,7 +225,7 @@ impl<D, const N: usize> Sub for UnitVec<D, N> {
     }
 }
 
-impl<D, const N: usize> Neg for UnitVec<D, N> {
+impl<D, const N: usize, P> Neg for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
@@ -217,29 +233,34 @@ impl<D, const N: usize> Neg for UnitVec<D, N> {
     }
 }
 
-// ---- Scalar multiplication (cross-dimension) ----
+// ---- Scalar multiplication (cross-dim, cross-prefix) ----
 
-impl<L1, M1, T1, I1, Th1, N1, J1, L2, M2, T2, I2, Th2, N2, J2, const K: usize>
-    Mul<UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, K>>
-    for Scalar<Dim<L1, M1, T1, I1, Th1, N1, J1>>
+impl<L1, M1, T1, I1, Th1, N1, J1, P1, L2, M2, T2, I2, Th2, N2, J2, P2, const K: usize>
+    Mul<UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, K, P2>>
+    for Scalar<Dim<L1, M1, T1, I1, Th1, N1, J1>, P1>
 where
     Dim<L1, M1, T1, I1, Th1, N1, J1>: DimMultiply<Dim<L2, M2, T2, I2, Th2, N2, J2>>,
+    P1: Add<P2>,
 {
     type Output = UnitVec<
         <Dim<L1, M1, T1, I1, Th1, N1, J1> as DimMultiply<
             Dim<L2, M2, T2, I2, Th2, N2, J2>,
         >>::Output,
         K,
+        <P1 as Add<P2>>::Output,
     >;
     #[inline(always)]
-    fn mul(self, rhs: UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, K>) -> Self::Output {
+    fn mul(
+        self,
+        rhs: UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, K, P2>,
+    ) -> Self::Output {
         UnitVec::from_raw_unchecked(rhs.value * self.into_raw())
     }
 }
 
-// ---- f64 scaling ----
+// ---- f64 scaling (preserves prefix) ----
 
-impl<D, const N: usize> Mul<f64> for UnitVec<D, N> {
+impl<D, const N: usize, P> Mul<f64> for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
@@ -247,31 +268,31 @@ impl<D, const N: usize> Mul<f64> for UnitVec<D, N> {
     }
 }
 
-impl<D, const N: usize> Mul<UnitVec<D, N>> for f64 {
-    type Output = UnitVec<D, N>;
+impl<D, const N: usize, P> Mul<UnitVec<D, N, P>> for f64 {
+    type Output = UnitVec<D, N, P>;
     #[inline(always)]
-    fn mul(self, rhs: UnitVec<D, N>) -> UnitVec<D, N> {
+    fn mul(self, rhs: UnitVec<D, N, P>) -> UnitVec<D, N, P> {
         UnitVec::from_raw_unchecked(rhs.value * self)
     }
 }
 
-// ---- Compound assignment ----
+// ---- Compound assignment (same prefix) ----
 
-impl<D, const N: usize> AddAssign for UnitVec<D, N> {
+impl<D, const N: usize, P> AddAssign for UnitVec<D, N, P> {
     #[inline(always)]
     fn add_assign(&mut self, rhs: Self) {
         self.value += rhs.value;
     }
 }
 
-impl<D, const N: usize> SubAssign for UnitVec<D, N> {
+impl<D, const N: usize, P> SubAssign for UnitVec<D, N, P> {
     #[inline(always)]
     fn sub_assign(&mut self, rhs: Self) {
         self.value -= rhs.value;
     }
 }
 
-impl<D, const N: usize> MulAssign<f64> for UnitVec<D, N> {
+impl<D, const N: usize, P> MulAssign<f64> for UnitVec<D, N, P> {
     #[inline(always)]
     fn mul_assign(&mut self, rhs: f64) {
         self.value *= rhs;
@@ -280,25 +301,25 @@ impl<D, const N: usize> MulAssign<f64> for UnitVec<D, N> {
 
 // ---- Reference ops ----
 
-impl<D, const N: usize> Add for &UnitVec<D, N> {
-    type Output = UnitVec<D, N>;
+impl<D, const N: usize, P> Add for &UnitVec<D, N, P> {
+    type Output = UnitVec<D, N, P>;
     #[inline(always)]
-    fn add(self, rhs: Self) -> UnitVec<D, N> {
+    fn add(self, rhs: Self) -> UnitVec<D, N, P> {
         UnitVec::from_raw_unchecked(self.value + rhs.value)
     }
 }
 
-impl<D, const N: usize> Sub for &UnitVec<D, N> {
-    type Output = UnitVec<D, N>;
+impl<D, const N: usize, P> Sub for &UnitVec<D, N, P> {
+    type Output = UnitVec<D, N, P>;
     #[inline(always)]
-    fn sub(self, rhs: Self) -> UnitVec<D, N> {
+    fn sub(self, rhs: Self) -> UnitVec<D, N, P> {
         UnitVec::from_raw_unchecked(self.value - rhs.value)
     }
 }
 
 // ---- Indexing ----
 
-impl<D, const N: usize> Index<usize> for UnitVec<D, N> {
+impl<D, const N: usize, P> Index<usize> for UnitVec<D, N, P> {
     type Output = f64;
     #[inline(always)]
     fn index(&self, index: usize) -> &f64 {

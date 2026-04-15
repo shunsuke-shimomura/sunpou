@@ -67,7 +67,7 @@ impl<F1, F2> Rotation<F1, F2> {
     /// Transform a vector from frame `F1` to frame `F2`.
     /// Dimension is preserved.
     #[inline(always)]
-    pub fn transform<D>(&self, v: &FrameVec<F1, D>) -> FrameVec<F2, D> {
+    pub fn transform<D, P>(&self, v: &FrameVec<F1, D, P>) -> FrameVec<F2, D, P> {
         FrameVec::from_raw_unchecked(self.quat.transform_vector(v.as_raw()))
     }
 
