@@ -1,10 +1,11 @@
-//! Basic scalar operations with compile-time unit checking.
+//! Basic scalar operations with compile-time unit and prefix checking.
 //!
 //! Demonstrates:
-//! - Creating unit-tagged scalars
-//! - Arithmetic that produces correct output dimensions
-//! - Compile-time prevention of invalid operations
+//! - Creating unit-tagged scalars with SI prefixes
+//! - Arithmetic that produces correct output dimensions AND prefixes
+//! - Rescaling between prefixes
 
+use sunpou::prefix::*;
 use sunpou::prelude::*;
 use sunpou::scalar::Scalar;
 
@@ -15,29 +16,33 @@ fn main() {
     let force: Scalar<Force> = mass * accel; // 980 N
     println!("F = m * a = {} N", force.into_raw());
 
-    // Velocity from distance / time
-    let distance = Scalar::<Length>::from_raw_unchecked(1000.0); // 1000 m
+    // === SI Prefix support ===
+
+    // Distance in km, time in s → velocity in km/s
+    let distance = Scalar::<Length, Kilo>::from_raw_unchecked(100.0); // 100 km
     let time = Scalar::<Time>::from_raw_unchecked(10.0); // 10 s
-    let velocity: Scalar<Velocity> = distance / time; // 100 m/s
-    println!("v = d / t = {} m/s", velocity.into_raw());
+    let velocity: Scalar<Velocity, Kilo> = distance / time; // 10 km/s
+    println!("v = d / t = {} km/s", velocity.into_raw());
 
-    // Energy: W = F * d
-    let work: Scalar<Energy> = force * distance;
-    println!("W = F * d = {} J", work.into_raw());
+    // Cross-prefix multiplication: prefixes add automatically
+    // 3 km × 4 km = 12 (prefix: Kilo+Kilo = Mega)
+    let d1 = Scalar::<Length, Kilo>::from_raw_unchecked(3.0);
+    let d2 = Scalar::<Length, Kilo>::from_raw_unchecked(4.0);
+    let area: Scalar<Area, Mega> = d1 * d2;
+    println!("3 km × 4 km = {} Mm² (= {} m²)", area.into_raw(), area.to_base_value());
 
-    // Same-dimension addition
-    let d1 = Scalar::<Length>::from_raw_unchecked(3.0);
-    let d2 = Scalar::<Length>::from_raw_unchecked(4.0);
-    let total = d1 + d2;
-    println!("3 m + 4 m = {} m", total.into_raw());
+    // Rescale between prefixes
+    let km = Scalar::<Length, Kilo>::from_raw_unchecked(7.0); // 7 km
+    let m: Scalar<Length, Base> = km.rescale(); // 7000 m
+    println!("7 km = {} m", m.into_raw());
 
-    // f64 scaling
-    let doubled = total * 2.0;
-    println!("doubled = {} m", doubled.into_raw());
+    // Same-prefix addition
+    let total_km = d1 + d2;
+    println!("3 km + 4 km = {} km", total_km.into_raw());
 
-    // The following would NOT compile (dimension mismatch):
-    // let _ = mass + distance;  // Mass + Length → compile error
-    // let _ = force + velocity; // Force + Velocity → compile error
+    // The following would NOT compile:
+    // let _ = mass + Scalar::<Length>::from_raw_unchecked(1.0);  // Mass + Length
+    // let _ = d1 + m;  // Kilo + Base (different prefix)
 
     println!("\nAll operations type-checked at compile time!");
 }
