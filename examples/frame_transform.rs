@@ -55,6 +55,8 @@ fn main() {
     // The following would NOT compile:
     // let _ = pos_eci + pos_ecef;  // frame mismatch
     // let _ = pos_eci + pos_eci.rescale::<Base>();  // prefix mismatch
+    //
+    // Note: Base is the default prefix. FrameVec<Eci, Length> == FrameVec<Eci, Length, Base>
 
     println!("\nAll frame operations type-checked at compile time!");
 }

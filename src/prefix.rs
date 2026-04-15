@@ -22,6 +22,15 @@
 use typenum::consts::*;
 
 /// No prefix (SI base units). 10⁰ = 1.
+///
+/// This is the default prefix for all types. When the prefix type parameter
+/// is omitted, `Base` (= `Z0`) is used:
+///
+/// ```rust,ignore
+/// // These are identical:
+/// Scalar::<Length, Base>::from_raw_unchecked(1000.0)
+/// Scalar::<Length>::from_raw_unchecked(1000.0)       // Base is the default
+/// ```
 pub type Base = Z0;
 
 /// Nano: 10⁻⁹
