@@ -30,7 +30,7 @@
 //! - Kv: [N·m / (rad/s)] = [N·m·s] → `FrameUnitMat<Body, Torque, InvTime, 3, 3>`
 //!
 //! The "gain has no units" intuition is misleading — the gain's units are
-//! precisely `output_dim / input_dim`, and uolgebra tracks this.
+//! precisely `output_dim / input_dim`, and sunpou tracks this.
 
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};

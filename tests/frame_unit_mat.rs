@@ -3,13 +3,13 @@
 //! Covers physics, control, and math use cases with frame checking.
 
 use nalgebra::{Matrix3, Vector3};
-use uolgebra::aliases::*;
-use uolgebra::block::{BlockMat2x2, BlockVec2};
-use uolgebra::frame_unit_mat::FrameUnitMat;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::rotation::Rotation;
+use sunpou::aliases::*;
+use sunpou::block::{BlockMat2x2, BlockVec2};
+use sunpou::frame_unit_mat::FrameUnitMat;
+use sunpou::frame_vec::FrameVec;
+use sunpou::rotation::Rotation;
 // Scalar used in some physics examples
-use uolgebra::unit_mat::UnitMat;
+use sunpou::unit_mat::UnitMat;
 
 // Frame markers
 struct Eci;
@@ -249,7 +249,7 @@ fn euler_equation_torque() {
 ///   → FrameUnitMat<Body, Torque, AngularVelocity, 3, 3>
 ///
 /// Note: The "gain has no units" intuition is wrong — the gain matrix
-/// has units of (output_dim / input_dim). uolgebra tracks this precisely.
+/// has units of (output_dim / input_dim). sunpou tracks this precisely.
 #[test]
 fn pd_attitude_controller() {
     // Gain matrices (diagonal for simplicity)

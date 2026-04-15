@@ -1,7 +1,7 @@
 /// Transforming a vector with wrong source frame must not compile.
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::rotation::Rotation;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::rotation::Rotation;
 
 struct Eci;
 struct Ecef;

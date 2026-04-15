@@ -1,4 +1,4 @@
-//! # uolgebra — Unit-aware linear algebra
+//! # sunpou — Unit-aware linear algebra
 //!
 //! Compile-time SI dimension checking for scalars, vectors, matrices, and block
 //! matrices. `no_std` compatible, zero-cost abstraction over nalgebra.

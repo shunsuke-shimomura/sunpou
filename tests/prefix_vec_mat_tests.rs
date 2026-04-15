@@ -1,13 +1,13 @@
 //! Tests for SI prefix on vectors and matrices.
 
 use nalgebra::Matrix3;
-use uolgebra::aliases::*;
-use uolgebra::elem_mat::ElemMat;
-use uolgebra::frame_elem_mat::FrameElemMat;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::prefix::*;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::elem_mat::ElemMat;
+use sunpou::frame_elem_mat::FrameElemMat;
+use sunpou::frame_vec::FrameVec;
+use sunpou::prefix::*;
+use sunpou::scalar::Scalar;
+use sunpou::unit_vec::UnitVec;
 
 struct Eci;
 struct Body;

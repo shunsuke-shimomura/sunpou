@@ -4,12 +4,12 @@
 //! with output dimension inferred automatically.
 
 use nalgebra::{Matrix3, Vector3};
-use uolgebra::aliases::*;
-use uolgebra::block::{BlockMat2x2, BlockVec2};
-use uolgebra::elem_mat::ElemMat;
-use uolgebra::frame_elem_mat::FrameElemMat;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::block::{BlockMat2x2, BlockVec2};
+use sunpou::elem_mat::ElemMat;
+use sunpou::frame_elem_mat::FrameElemMat;
+use sunpou::frame_vec::FrameVec;
+use sunpou::unit_vec::UnitVec;
 
 struct Eci;
 struct Body;
@@ -151,8 +151,8 @@ fn pd_position_controller_elem() {
     // Kp * Length = Force → E_kp = Force / Length
     // We need DimDiv<Force, Length> as the element type.
     // Force/Length = Dim<P1,P1,N2> / Dim<P1,Z0,Z0> = Dim<Z0,P1,N2> (= Mass * InvTime²)
-    type ForcePerLength = <Force as uolgebra::dim::DimDivide<Length>>::Output;
-    type ForcePerVelocity = <Force as uolgebra::dim::DimDivide<Velocity>>::Output;
+    type ForcePerLength = <Force as sunpou::dim::DimDivide<Length>>::Output;
+    type ForcePerVelocity = <Force as sunpou::dim::DimDivide<Velocity>>::Output;
 
     let kp = FrameElemMat::<Eci, ForcePerLength, 3, 3>::from_raw_unchecked(kp_raw);
     let kv = FrameElemMat::<Eci, ForcePerVelocity, 3, 3>::from_raw_unchecked(kv_raw);

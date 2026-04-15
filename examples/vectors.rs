@@ -6,9 +6,9 @@
 //! - Cross product producing correct output dimension
 
 use nalgebra::SVector;
-use uolgebra::prelude::*;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::prelude::*;
+use sunpou::scalar::Scalar;
+use sunpou::unit_vec::UnitVec;
 
 fn main() {
     // Position and velocity vectors

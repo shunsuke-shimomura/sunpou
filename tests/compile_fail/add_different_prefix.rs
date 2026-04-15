@@ -1,8 +1,8 @@
 /// Adding scalars with different prefixes must not compile.
 /// This prevents accidental precision loss from scale mismatch.
-use uolgebra::aliases::*;
-use uolgebra::prefix::*;
-use uolgebra::scalar::Scalar;
+use sunpou::aliases::*;
+use sunpou::prefix::*;
+use sunpou::scalar::Scalar;
 
 fn main() {
     let km = Scalar::<Length, Kilo>::from_raw_unchecked(3.0);

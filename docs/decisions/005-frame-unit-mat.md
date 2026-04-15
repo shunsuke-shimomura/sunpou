@@ -49,7 +49,7 @@ ECI で計算した状態遷移行列を ECEF の状態ベクトルに適用し�
 | Kp (位置) | N / m | Force | Length |
 | Kv (位置) | N·s / m | Force | Velocity |
 
-uolgebra はこれを自然に表現する:
+sunpou はこれを自然に表現する:
 ```rust
 let kp = FrameUnitMat::<Body, Torque, Dimensionless, 3, 3>::from_raw_unchecked(...);
 let kv = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw_unchecked(...);

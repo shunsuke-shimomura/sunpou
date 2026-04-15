@@ -1,10 +1,10 @@
 //! Tests for rescale_dims: safe dimensional reinterpretation of matrices.
 
 use nalgebra::Matrix3;
-use uolgebra::aliases::*;
-use uolgebra::frame_unit_mat::FrameUnitMat;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::unit_mat::UnitMat;
+use sunpou::aliases::*;
+use sunpou::frame_unit_mat::FrameUnitMat;
+use sunpou::frame_vec::FrameVec;
+use sunpou::unit_mat::UnitMat;
 
 struct Body;
 struct Eci;

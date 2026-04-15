@@ -3,9 +3,9 @@
 //! Covers: construction, cross-prefix arithmetic, rescaling, precision,
 //! uom cross-validation, and compile-fail scenarios.
 
-use uolgebra::aliases::*;
-use uolgebra::prefix::*;
-use uolgebra::scalar::Scalar;
+use sunpou::aliases::*;
+use sunpou::prefix::*;
+use sunpou::scalar::Scalar;
 
 // ============================================================================
 // 1. CONSTRUCTION AND EXTRACTION

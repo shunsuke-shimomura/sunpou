@@ -5,10 +5,10 @@
 //! - Rotation between frames preserving dimension
 //! - Compile-time prevention of cross-frame operations
 
-use uolgebra::prelude::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::rotation::Rotation;
-use uolgebra::scalar::Scalar;
+use sunpou::prelude::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::rotation::Rotation;
+use sunpou::scalar::Scalar;
 
 // User-defined frame markers (zero-sized types)
 struct Eci;

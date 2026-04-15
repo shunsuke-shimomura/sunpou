@@ -1,6 +1,6 @@
 /// Adding scalars with different dimensions must not compile.
-use uolgebra::aliases::*;
-use uolgebra::scalar::Scalar;
+use sunpou::aliases::*;
+use sunpou::scalar::Scalar;
 
 fn main() {
     let length = Scalar::<Length>::from_raw_unchecked(1.0);

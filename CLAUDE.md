@@ -1,8 +1,8 @@
-# Claude Code Guidelines for uolgebra
+# Claude Code Guidelines for sunpou
 
 ## Project Overview
 
-`uolgebra` is a `no_std` Rust library providing compile-time SI dimension checking
+`sunpou` is a `no_std` Rust library providing compile-time SI dimension checking
 for linear algebra types (scalars, vectors, matrices, block matrices).
 
 ## Key Design Principles
