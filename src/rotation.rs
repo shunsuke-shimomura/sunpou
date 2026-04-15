@@ -9,11 +9,17 @@ use crate::frame_vec::FrameVec;
 ///
 /// Internally stores a unit quaternion. Zero overhead over `UnitQuaternion<f64>`.
 #[repr(transparent)]
-#[derive(Clone, Copy)]
 pub struct Rotation<From, To> {
     quat: UnitQuaternion<f64>,
     _marker: PhantomData<(From, To)>,
 }
+
+impl<F1, F2> Clone for Rotation<F1, F2> {
+    #[inline(always)]
+    fn clone(&self) -> Self { *self }
+}
+
+impl<F1, F2> Copy for Rotation<F1, F2> {}
 
 impl<F1, F2> core::fmt::Debug for Rotation<F1, F2> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -58,10 +64,16 @@ impl<F1, F2> Rotation<F1, F2> {
         }
     }
 
-    /// Get the underlying unit quaternion.
+    /// Get the underlying unit quaternion (consuming).
     #[inline(always)]
     pub fn into_raw(self) -> UnitQuaternion<f64> {
         self.quat
+    }
+
+    /// Borrow the underlying unit quaternion.
+    #[inline(always)]
+    pub fn as_raw(&self) -> &UnitQuaternion<f64> {
+        &self.quat
     }
 
     /// Transform a vector from frame `F1` to frame `F2`.
