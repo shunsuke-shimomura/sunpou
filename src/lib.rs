@@ -15,7 +15,9 @@ pub mod elem_mat;
 pub mod frame_elem_mat;
 pub mod block;
 pub mod aliases;
+pub mod angle;
 pub mod dim_name;
+pub mod frame_direction;
 pub mod units;
 
 // Legacy modules — kept for backward compatibility, prefer ElemMat/FrameElemMat
@@ -34,5 +36,7 @@ pub mod prelude {
     pub use crate::rotation::Rotation;
     pub use crate::scalar::Scalar;
     pub use crate::unit_vec::UnitVec;
+    pub use crate::angle::{Angle, Deg, Rad};
+    pub use crate::frame_direction::FrameDirection;
     pub use crate::units::UnitLiteral;
 }
