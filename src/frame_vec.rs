@@ -49,7 +49,7 @@ impl<F, D, P> core::fmt::Display for FrameVec<F, D, P> {
 impl<F, D, P> Default for FrameVec<F, D, P> {
     #[inline(always)]
     fn default() -> Self {
-        Self::from_raw_unchecked(Vector3::zeros())
+        Self::from_raw(Vector3::zeros())
     }
 }
 
@@ -65,7 +65,7 @@ impl<F, D, P> FrameVec<F, D, P> {
 
     /// Create from a raw nalgebra Vector3.
     #[inline(always)]
-    pub fn from_raw_unchecked(value: Vector3<f64>) -> Self {
+    pub fn from_raw(value: Vector3<f64>) -> Self {
         Self {
             value,
             _marker: PhantomData,
@@ -100,7 +100,7 @@ impl<F, D, P> FrameVec<F, D, P> {
     /// Euclidean norm.
     #[inline(always)]
     pub fn norm(&self) -> Scalar<D, P> {
-        Scalar::from_raw_unchecked(self.value.norm())
+        Scalar::from_raw(self.value.norm())
     }
 
     /// Squared norm. Returns scalar with dimension D², prefix 2P.
@@ -110,13 +110,13 @@ impl<F, D, P> FrameVec<F, D, P> {
         D: DimMultiply<D>,
         P: Add<P>,
     {
-        Scalar::from_raw_unchecked(self.value.norm_squared())
+        Scalar::from_raw(self.value.norm_squared())
     }
 
     /// Convert to a frame-less UnitVec (strip the frame tag).
     #[inline(always)]
     pub fn to_unit_vec(&self) -> crate::unit_vec::UnitVec<D, 3, P> {
-        crate::unit_vec::UnitVec::from_raw_unchecked(nalgebra::SVector::from([
+        crate::unit_vec::UnitVec::from_raw(nalgebra::SVector::from([
             self.value.x,
             self.value.y,
             self.value.z,
@@ -138,7 +138,7 @@ impl<F, D, P> FrameVec<F, D, P> {
     ) -> Option<FrameVec<F, crate::aliases::Dimensionless>> {
         self.value
             .try_normalize(min_norm)
-            .map(FrameVec::from_raw_unchecked)
+            .map(FrameVec::from_raw)
     }
 
     /// Rescale to a different prefix.
@@ -151,7 +151,7 @@ impl<F, D, P> FrameVec<F, D, P> {
         let factor = crate::prefix::pow10_i32(
             <<P as Sub<P2>>::Output as Integer>::to_i64() as i32,
         );
-        FrameVec::from_raw_unchecked(self.value * factor)
+        FrameVec::from_raw(self.value * factor)
     }
 }
 
@@ -168,7 +168,7 @@ impl<F, D1, P1> FrameVec<F, D1, P1> {
         D1: DimMultiply<D2>,
         P1: Add<P2>,
     {
-        Scalar::from_raw_unchecked(self.value.dot(&rhs.value))
+        Scalar::from_raw(self.value.dot(&rhs.value))
     }
 
     /// Cross product. Same frame required, dimensions and prefixes may differ.
@@ -181,7 +181,7 @@ impl<F, D1, P1> FrameVec<F, D1, P1> {
         D1: DimMultiply<D2>,
         P1: Add<P2>,
     {
-        FrameVec::from_raw_unchecked(self.value.cross(&rhs.value))
+        FrameVec::from_raw(self.value.cross(&rhs.value))
     }
 }
 
@@ -191,7 +191,7 @@ impl<F, D, P> Add for FrameVec<F, D, P> {
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value + rhs.value)
+        Self::from_raw(self.value + rhs.value)
     }
 }
 
@@ -199,7 +199,7 @@ impl<F, D, P> Sub for FrameVec<F, D, P> {
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value - rhs.value)
+        Self::from_raw(self.value - rhs.value)
     }
 }
 
@@ -207,7 +207,7 @@ impl<F, D, P> Neg for FrameVec<F, D, P> {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
-        Self::from_raw_unchecked(-self.value)
+        Self::from_raw(-self.value)
     }
 }
 
@@ -232,7 +232,7 @@ where
         self,
         rhs: FrameVec<F, Dim<L2, M2, T2, I2, Th2, N2, J2>, P2>,
     ) -> Self::Output {
-        FrameVec::from_raw_unchecked(rhs.value * self.into_raw())
+        FrameVec::from_raw(rhs.value * self.into_raw())
     }
 }
 
@@ -242,7 +242,7 @@ impl<F, D, P> Mul<f64> for FrameVec<F, D, P> {
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value * rhs)
+        Self::from_raw(self.value * rhs)
     }
 }
 
@@ -250,7 +250,7 @@ impl<F, D, P> Mul<FrameVec<F, D, P>> for f64 {
     type Output = FrameVec<F, D, P>;
     #[inline(always)]
     fn mul(self, rhs: FrameVec<F, D, P>) -> FrameVec<F, D, P> {
-        FrameVec::from_raw_unchecked(rhs.value * self)
+        FrameVec::from_raw(rhs.value * self)
     }
 }
 
@@ -283,7 +283,7 @@ impl<F, D, P> Add for &FrameVec<F, D, P> {
     type Output = FrameVec<F, D, P>;
     #[inline(always)]
     fn add(self, rhs: Self) -> FrameVec<F, D, P> {
-        FrameVec::from_raw_unchecked(self.value + rhs.value)
+        FrameVec::from_raw(self.value + rhs.value)
     }
 }
 
@@ -291,6 +291,6 @@ impl<F, D, P> Sub for &FrameVec<F, D, P> {
     type Output = FrameVec<F, D, P>;
     #[inline(always)]
     fn sub(self, rhs: Self) -> FrameVec<F, D, P> {
-        FrameVec::from_raw_unchecked(self.value - rhs.value)
+        FrameVec::from_raw(self.value - rhs.value)
     }
 }

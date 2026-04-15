@@ -23,10 +23,10 @@ type StmT = BlockMat2x2<
 fn block_transpose_basic() {
     let dt = 60.0;
     let stm = Stm::new(
-        UnitMat::from_raw_unchecked(Matrix3::identity()),
-        UnitMat::from_raw_unchecked(Matrix3::identity() * dt),
-        UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        UnitMat::from_raw_unchecked(Matrix3::identity()),
+        UnitMat::from_raw(Matrix3::identity()),
+        UnitMat::from_raw(Matrix3::identity() * dt),
+        UnitMat::from_raw(Matrix3::zeros()),
+        UnitMat::from_raw(Matrix3::identity()),
     );
 
     let stm_t: StmT = stm.transpose();

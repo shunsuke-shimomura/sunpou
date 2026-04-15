@@ -15,8 +15,8 @@ struct Eci;
 
 #[test]
 fn scalar_nan_propagation() {
-    let a = Scalar::<Length>::from_raw_unchecked(f64::NAN);
-    let b = Scalar::<Length>::from_raw_unchecked(1.0);
+    let a = Scalar::<Length>::from_raw(f64::NAN);
+    let b = Scalar::<Length>::from_raw(1.0);
     assert!((a + b).into_raw().is_nan());
     assert!((a * b).into_raw().is_nan());
 }
@@ -33,8 +33,8 @@ fn unitvec_nan_norm() {
 
 #[test]
 fn scalar_infinity() {
-    let a = Scalar::<Length>::from_raw_unchecked(f64::INFINITY);
-    let b = Scalar::<Length>::from_raw_unchecked(1.0);
+    let a = Scalar::<Length>::from_raw(f64::INFINITY);
+    let b = Scalar::<Length>::from_raw(1.0);
     assert!((a + b).into_raw().is_infinite());
 }
 
@@ -74,7 +74,7 @@ fn unitvec_nonzero_normalize() {
 
 #[test]
 fn singular_matrix_inverse() {
-    let m = UnitMat::<Velocity, Length, 3, 3>::from_raw_unchecked(Matrix3::zeros());
+    let m = UnitMat::<Velocity, Length, 3, 3>::from_raw(Matrix3::zeros());
     assert!(m.try_inverse().is_none());
 }
 
@@ -91,21 +91,21 @@ fn identity_inverse() {
 
 #[test]
 fn scalar_add_assign() {
-    let mut a = Scalar::<Length>::from_raw_unchecked(3.0);
-    a += Scalar::<Length>::from_raw_unchecked(4.0);
+    let mut a = Scalar::<Length>::from_raw(3.0);
+    a += Scalar::<Length>::from_raw(4.0);
     assert_eq!(a.into_raw(), 7.0);
 }
 
 #[test]
 fn scalar_sub_assign() {
-    let mut a = Scalar::<Length>::from_raw_unchecked(10.0);
-    a -= Scalar::<Length>::from_raw_unchecked(3.0);
+    let mut a = Scalar::<Length>::from_raw(10.0);
+    a -= Scalar::<Length>::from_raw(3.0);
     assert_eq!(a.into_raw(), 7.0);
 }
 
 #[test]
 fn scalar_mul_assign_f64() {
-    let mut a = Scalar::<Length>::from_raw_unchecked(5.0);
+    let mut a = Scalar::<Length>::from_raw(5.0);
     a *= 3.0;
     assert_eq!(a.into_raw(), 15.0);
 }
@@ -134,8 +134,8 @@ fn framevec_add_assign() {
 
 #[test]
 fn unitmat_add_assign() {
-    let mut m = UnitMat::<Length, Length, 3, 3>::from_raw_unchecked(Matrix3::identity());
-    m += UnitMat::from_raw_unchecked(Matrix3::identity());
+    let mut m = UnitMat::<Length, Length, 3, 3>::from_raw(Matrix3::identity());
+    m += UnitMat::from_raw(Matrix3::identity());
     assert_eq!(m.into_raw(), Matrix3::identity() * 2.0);
 }
 
@@ -145,8 +145,8 @@ fn unitmat_add_assign() {
 
 #[test]
 fn scalar_ref_add() {
-    let a = Scalar::<Length>::from_raw_unchecked(3.0);
-    let b = Scalar::<Length>::from_raw_unchecked(4.0);
+    let a = Scalar::<Length>::from_raw(3.0);
+    let b = Scalar::<Length>::from_raw(4.0);
     assert_eq!((&a + &b).into_raw(), 7.0);
     // Originals still usable
     assert_eq!(a.into_raw(), 3.0);

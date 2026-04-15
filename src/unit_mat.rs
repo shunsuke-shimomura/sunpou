@@ -52,7 +52,7 @@ impl<DR, DC, const R: usize, const C: usize> core::fmt::Debug for UnitMat<DR, DC
 impl<DR, DC, const R: usize, const C: usize> UnitMat<DR, DC, R, C> {
     /// Create from a raw nalgebra matrix.
     #[inline(always)]
-    pub fn from_raw_unchecked(value: SMatrix<f64, R, C>) -> Self {
+    pub fn from_raw(value: SMatrix<f64, R, C>) -> Self {
         Self {
             value,
             _dim: PhantomData,
@@ -74,7 +74,7 @@ impl<DR, DC, const R: usize, const C: usize> UnitMat<DR, DC, R, C> {
     /// Transpose: `UnitMat<DR, DC, R, C> → UnitMat<DC, DR, C, R>`.
     #[inline(always)]
     pub fn transpose(&self) -> UnitMat<DC, DR, C, R> {
-        UnitMat::from_raw_unchecked(self.value.transpose())
+        UnitMat::from_raw(self.value.transpose())
     }
 
     /// Rescale both row and column dimensions by the same factor `S`.
@@ -91,7 +91,7 @@ impl<DR, DC, const R: usize, const C: usize> UnitMat<DR, DC, R, C> {
         DR: DimMultiply<S>,
         DC: DimMultiply<S>,
     {
-        UnitMat::from_raw_unchecked(self.value)
+        UnitMat::from_raw(self.value)
     }
 }
 
@@ -101,7 +101,7 @@ impl<D, const N: usize> UnitMat<D, D, N, N> {
     /// Identity matrix. Only available when DR == DC (dimensionless elements).
     #[inline(always)]
     pub fn identity() -> Self {
-        Self::from_raw_unchecked(SMatrix::identity())
+        Self::from_raw(SMatrix::identity())
     }
 }
 
@@ -111,7 +111,7 @@ impl<DR, DC, const R: usize, const C: usize> UnitMat<DR, DC, R, C> {
     /// Zero matrix.
     #[inline(always)]
     pub fn zeros() -> Self {
-        Self::from_raw_unchecked(SMatrix::zeros())
+        Self::from_raw(SMatrix::zeros())
     }
 }
 
@@ -121,7 +121,7 @@ impl<DR, DC, const R: usize, const C: usize> Add for UnitMat<DR, DC, R, C> {
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value + rhs.value)
+        Self::from_raw(self.value + rhs.value)
     }
 }
 
@@ -129,7 +129,7 @@ impl<DR, DC, const R: usize, const C: usize> Sub for UnitMat<DR, DC, R, C> {
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value - rhs.value)
+        Self::from_raw(self.value - rhs.value)
     }
 }
 
@@ -137,7 +137,7 @@ impl<DR, DC, const R: usize, const C: usize> Neg for UnitMat<DR, DC, R, C> {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
-        Self::from_raw_unchecked(-self.value)
+        Self::from_raw(-self.value)
     }
 }
 
@@ -148,7 +148,7 @@ impl<DR, DC, const R: usize, const C: usize> Mul<UnitVec<DC, C>> for UnitMat<DR,
     type Output = UnitVec<DR, R>;
     #[inline(always)]
     fn mul(self, rhs: UnitVec<DC, C>) -> UnitVec<DR, R> {
-        UnitVec::from_raw_unchecked(self.value * rhs.into_raw())
+        UnitVec::from_raw(self.value * rhs.into_raw())
     }
 }
 
@@ -156,7 +156,7 @@ impl<DR, DC, const R: usize, const C: usize> Mul<&UnitVec<DC, C>> for &UnitMat<D
     type Output = UnitVec<DR, R>;
     #[inline(always)]
     fn mul(self, rhs: &UnitVec<DC, C>) -> UnitVec<DR, R> {
-        UnitVec::from_raw_unchecked(self.value * rhs.as_raw())
+        UnitVec::from_raw(self.value * rhs.as_raw())
     }
 }
 
@@ -170,7 +170,7 @@ impl<DR, DM, DC, const R: usize, const K: usize, const C: usize>
     type Output = UnitMat<DR, DC, R, C>;
     #[inline(always)]
     fn mul(self, rhs: UnitMat<DM, DC, K, C>) -> UnitMat<DR, DC, R, C> {
-        UnitMat::from_raw_unchecked(self.value * rhs.value)
+        UnitMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -180,7 +180,7 @@ impl<DR, DM, DC, const R: usize, const K: usize, const C: usize>
     type Output = UnitMat<DR, DC, R, C>;
     #[inline(always)]
     fn mul(self, rhs: &UnitMat<DM, DC, K, C>) -> UnitMat<DR, DC, R, C> {
-        UnitMat::from_raw_unchecked(self.value * rhs.value)
+        UnitMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -190,7 +190,7 @@ impl<DR, DC, const R: usize, const C: usize> Mul<f64> for UnitMat<DR, DC, R, C> 
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value * rhs)
+        Self::from_raw(self.value * rhs)
     }
 }
 
@@ -217,7 +217,7 @@ where
         self,
         rhs: UnitMat<Dim<LR, MR, TR, IR, ThR, NR, JR>, DC, R, C>,
     ) -> Self::Output {
-        UnitMat::from_raw_unchecked(rhs.value * self.into_raw())
+        UnitMat::from_raw(rhs.value * self.into_raw())
     }
 }
 
@@ -229,7 +229,7 @@ impl<DR, DC, const N: usize> UnitMat<DR, DC, N, N> {
     /// Returns `None` if the matrix is singular.
     #[inline(always)]
     pub fn try_inverse(&self) -> Option<UnitMat<DC, DR, N, N>> {
-        self.value.try_inverse().map(UnitMat::from_raw_unchecked)
+        self.value.try_inverse().map(UnitMat::from_raw)
     }
 }
 

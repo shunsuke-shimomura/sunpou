@@ -51,7 +51,7 @@ fn unitvec_cross_cross_prefix() {
 #[test]
 fn scalar_times_unitvec_cross_prefix() {
     // kilo-mass * kilo-velocity → mega-momentum
-    let mass = Scalar::<Mass, Kilo>::from_raw_unchecked(2.0);  // 2000 kg
+    let mass = Scalar::<Mass, Kilo>::from_raw(2.0);  // 2000 kg
     let vel = UnitVec::<Velocity, 3, Kilo>::new(1.0, 0.0, 0.0); // 1 km/s
     let momentum: UnitVec<Momentum, 3, Mega> = mass * vel;
     assert_eq!(momentum.x(), 2.0);
@@ -111,7 +111,7 @@ fn framevec_cross_cross_prefix() {
 #[test]
 fn elemmat_times_unitvec_cross_prefix() {
     // ElemMat in base prefix * UnitVec in kilo → output in kilo
-    let m = ElemMat::<Mass, 3, 3>::from_raw_unchecked(Matrix3::identity() * 10.0);
+    let m = ElemMat::<Mass, 3, 3>::from_raw(Matrix3::identity() * 10.0);
     let v = UnitVec::<Velocity, 3, Kilo>::new(1.0, 0.0, 0.0);
     let p: UnitVec<Momentum, 3, Kilo> = m * v;
     assert_eq!(p.x(), 10.0); // 10 kilo-momentum-units
@@ -123,7 +123,7 @@ fn elemmat_times_unitvec_cross_prefix() {
 
 #[test]
 fn frame_elemmat_times_framevec_cross_prefix() {
-    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw_unchecked(
+    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw(
         Matrix3::identity() * 100.0,
     );
     // Angular velocity in milli-rad/s

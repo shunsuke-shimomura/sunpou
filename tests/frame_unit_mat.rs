@@ -27,8 +27,8 @@ fn frame_mat_mul_vec_cross_validation() {
     let raw_v = Vector3::new(1.0, 2.0, 3.0);
     let expected = raw_m * raw_v;
 
-    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw_unchecked(raw_m);
-    let v = FrameVec::<Eci, Length>::from_raw_unchecked(raw_v);
+    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw(raw_m);
+    let v = FrameVec::<Eci, Length>::from_raw(raw_v);
     let result: FrameVec<Eci, Velocity> = m * v;
 
     assert_eq!(result.into_raw(), expected);
@@ -40,8 +40,8 @@ fn frame_mat_mul_mat_cross_validation() {
     let raw_b = Matrix3::new(4.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 6.0);
     let expected = raw_a * raw_b;
 
-    let a = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw_unchecked(raw_a);
-    let b = FrameUnitMat::<Body, AngularVelocity, Dimensionless, 3, 3>::from_raw_unchecked(raw_b);
+    let a = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw(raw_a);
+    let b = FrameUnitMat::<Body, AngularVelocity, Dimensionless, 3, 3>::from_raw(raw_b);
     let result: FrameUnitMat<Body, Torque, Dimensionless, 3, 3> = a * b;
 
     assert_eq!(result.into_raw(), expected);
@@ -50,7 +50,7 @@ fn frame_mat_mul_mat_cross_validation() {
 #[test]
 fn frame_mat_transpose() {
     let raw = Matrix3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
-    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw_unchecked(raw);
+    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw(raw);
     let t: FrameUnitMat<Eci, Length, Velocity, 3, 3> = m.transpose();
     assert_eq!(t.into_raw(), raw.transpose());
 }
@@ -58,7 +58,7 @@ fn frame_mat_transpose() {
 #[test]
 fn frame_mat_inverse() {
     let raw = Matrix3::new(1.0, 2.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-    let m = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw_unchecked(raw);
+    let m = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw(raw);
     let inv: FrameUnitMat<Body, AngularVelocity, Torque, 3, 3> = m.try_inverse().unwrap();
     let raw_inv = raw.try_inverse().unwrap();
     assert!((inv.into_raw() - raw_inv).norm() < 1e-15);
@@ -89,7 +89,7 @@ fn frame_mat_zero_cost() {
 #[test]
 fn frame_mat_preserves_frame() {
     // Matrix in ECI frame operates on ECI vector → result is ECI
-    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw_unchecked(Matrix3::identity());
+    let m = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw(Matrix3::identity());
     let v = FrameVec::<Eci, Length>::new(1.0, 2.0, 3.0);
     let result: FrameVec<Eci, Velocity> = m * v;
     assert_eq!(result.x(), 1.0);
@@ -114,10 +114,10 @@ fn orbital_stm_in_eci() {
     type StateEci = BlockVec2<FrameVec<Eci, Length>, FrameVec<Eci, Velocity>>;
 
     let stm = StmEci::new(
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * dt),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity()),
+        FrameUnitMat::from_raw(Matrix3::identity()),
+        FrameUnitMat::from_raw(Matrix3::identity() * dt),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::identity()),
     );
 
     let x0 = StateEci::new(
@@ -153,7 +153,7 @@ fn gravity_gradient_in_eci() {
 
     // Dimension: Acceleration / Length = (m/s²) / m = 1/s²
     // In UnitMat terms: DR = Acceleration, DC = Length
-    let g = FrameUnitMat::<Eci, Acceleration, Length, 3, 3>::from_raw_unchecked(g_raw);
+    let g = FrameUnitMat::<Eci, Acceleration, Length, 3, 3>::from_raw(g_raw);
 
     // Apply to a position perturbation → get acceleration perturbation
     let dr = FrameVec::<Eci, Length>::new(100.0, 0.0, 0.0); // 100m radial
@@ -181,7 +181,7 @@ fn inertia_tensor_angular_momentum() {
 
     // Inertia: DR = AngularMomentum, DC = AngularVelocity
     // Because I * ω = L: [kg·m²] * [1/s] = [kg·m²/s]
-    let inertia = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let inertia = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
 
     let omega = FrameVec::<Body, AngularVelocity>::new(0.1, 0.0, 0.0); // 0.1 rad/s about x
 
@@ -208,9 +208,9 @@ fn euler_equation_torque() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
 
     // I for computing angular momentum: I · ω = L
-    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
     // I for Euler equation: I · ω̇ = τ_net → I⁻¹ · τ_net = ω̇
-    let i_acc = FrameUnitMat::<Body, Torque, AngularAcceleration, 3, 3>::from_raw_unchecked(i_raw);
+    let i_acc = FrameUnitMat::<Body, Torque, AngularAcceleration, 3, 3>::from_raw(i_raw);
 
     let omega = FrameVec::<Body, AngularVelocity>::new(0.1, 0.05, 0.0);
     let torque = FrameVec::<Body, Torque>::new(0.0, 0.0, 1.0); // 1 N·m about z
@@ -257,12 +257,12 @@ fn pd_attitude_controller() {
     let kv_val = 5.0;  // N·m·s / rad
 
     // Kp: Torque / Dimensionless → maps angle error to torque
-    let kp = FrameUnitMat::<Body, Torque, Dimensionless, 3, 3>::from_raw_unchecked(
+    let kp = FrameUnitMat::<Body, Torque, Dimensionless, 3, 3>::from_raw(
         Matrix3::identity() * kp_val,
     );
 
     // Kv: Torque / AngularVelocity → maps rate error to torque
-    let kv = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw_unchecked(
+    let kv = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw(
         Matrix3::identity() * kv_val,
     );
 
@@ -288,10 +288,10 @@ fn pd_attitude_controller() {
 /// Kv: [N/(m/s)] = [kg/s] → Force / Velocity
 #[test]
 fn pd_position_controller() {
-    let kp = FrameUnitMat::<Eci, Force, Length, 3, 3>::from_raw_unchecked(
+    let kp = FrameUnitMat::<Eci, Force, Length, 3, 3>::from_raw(
         Matrix3::identity() * 0.5,
     );
-    let kv = FrameUnitMat::<Eci, Force, Velocity, 3, 3>::from_raw_unchecked(
+    let kv = FrameUnitMat::<Eci, Force, Velocity, 3, 3>::from_raw(
         Matrix3::identity() * 2.0,
     );
 
@@ -311,7 +311,7 @@ fn pd_position_controller() {
 fn reaction_wheel_distribution() {
     // Distribution matrix: maps body torque command → wheel torque commands
     // For 3 orthogonal wheels aligned to body axes: identity
-    let dist = FrameUnitMat::<Body, Torque, Torque, 3, 3>::from_raw_unchecked(
+    let dist = FrameUnitMat::<Body, Torque, Torque, 3, 3>::from_raw(
         Matrix3::identity(),
     );
 
@@ -344,24 +344,24 @@ fn ekf_frame_safe_propagation() {
 
     let dt = 10.0;
     let phi = StmEci::new(
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * dt),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity()),
+        FrameUnitMat::from_raw(Matrix3::identity()),
+        FrameUnitMat::from_raw(Matrix3::identity() * dt),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::identity()),
     );
 
     let p0 = CovEci::new(
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * 100.0),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * 1.0),
+        FrameUnitMat::from_raw(Matrix3::identity() * 100.0),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::identity() * 1.0),
     );
 
     let q = CovEci::new(
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * 0.1),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameUnitMat::from_raw_unchecked(Matrix3::identity() * 0.01),
+        FrameUnitMat::from_raw(Matrix3::identity() * 0.1),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::zeros()),
+        FrameUnitMat::from_raw(Matrix3::identity() * 0.01),
     );
 
     // State propagation
@@ -406,14 +406,14 @@ fn rotation_as_frame_unit_mat() {
 
 #[test]
 fn unit_mat_to_frame_unit_mat() {
-    let um = UnitMat::<Velocity, Length, 3, 3>::from_raw_unchecked(Matrix3::identity());
+    let um = UnitMat::<Velocity, Length, 3, 3>::from_raw(Matrix3::identity());
     let fum = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_unit_mat(&um);
     assert_eq!(fum.into_raw(), Matrix3::identity());
 }
 
 #[test]
 fn frame_unit_mat_to_unit_mat() {
-    let fum = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw_unchecked(
+    let fum = FrameUnitMat::<Body, Torque, AngularVelocity, 3, 3>::from_raw(
         Matrix3::identity() * 5.0,
     );
     let um: UnitMat<Torque, AngularVelocity, 3, 3> = fum.to_unit_mat();
@@ -426,8 +426,8 @@ fn frame_unit_mat_to_unit_mat() {
 
 #[test]
 fn frame_mat_add_assign() {
-    let mut m = FrameUnitMat::<Eci, Length, Length, 3, 3>::from_raw_unchecked(Matrix3::identity());
-    m += FrameUnitMat::from_raw_unchecked(Matrix3::identity());
+    let mut m = FrameUnitMat::<Eci, Length, Length, 3, 3>::from_raw(Matrix3::identity());
+    m += FrameUnitMat::from_raw(Matrix3::identity());
     assert_eq!(m.into_raw(), Matrix3::identity() * 2.0);
 }
 
@@ -443,7 +443,7 @@ fn rsw_force_resolution() {
     let thrust_rsw = FrameVec::<Rsw, Force>::new(0.0, 0.5, 0.0); // 0.5 N along-track
 
     // Kp gain in RSW: convert position error to force command
-    let kp_rsw = FrameUnitMat::<Rsw, Force, Length, 3, 3>::from_raw_unchecked(
+    let kp_rsw = FrameUnitMat::<Rsw, Force, Length, 3, 3>::from_raw(
         Matrix3::identity() * 0.001,
     );
 

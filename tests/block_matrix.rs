@@ -38,15 +38,15 @@ fn orbital_stm_propagation() {
     type State = BlockVec2<UnitVec<Length, 3>, UnitVec<Velocity, 3>>;
 
     let stm = Stm {
-        a: UnitMat::from_raw_unchecked(raw_rr),
-        b: UnitMat::from_raw_unchecked(raw_rv),
-        c: UnitMat::from_raw_unchecked(raw_vr),
-        d: UnitMat::from_raw_unchecked(raw_vv),
+        a: UnitMat::from_raw(raw_rr),
+        b: UnitMat::from_raw(raw_rv),
+        c: UnitMat::from_raw(raw_vr),
+        d: UnitMat::from_raw(raw_vv),
     };
 
     let x0 = State {
-        upper: UnitVec::from_raw_unchecked(SVector::from([raw_r.x, raw_r.y, raw_r.z])),
-        lower: UnitVec::from_raw_unchecked(SVector::from([raw_v.x, raw_v.y, raw_v.z])),
+        upper: UnitVec::from_raw(SVector::from([raw_r.x, raw_r.y, raw_r.z])),
+        lower: UnitVec::from_raw(SVector::from([raw_v.x, raw_v.y, raw_v.z])),
     };
 
     let x1: State = stm * x0;
@@ -57,10 +57,10 @@ fn orbital_stm_propagation() {
 
 #[test]
 fn block_mat_add() {
-    let a1 = UnitMat::<Length, Length, 3, 3>::from_raw_unchecked(Matrix3::identity());
-    let b1 = UnitMat::<Length, Velocity, 3, 3>::from_raw_unchecked(Matrix3::zeros());
-    let c1 = UnitMat::<Velocity, Length, 3, 3>::from_raw_unchecked(Matrix3::zeros());
-    let d1 = UnitMat::<Velocity, Velocity, 3, 3>::from_raw_unchecked(Matrix3::identity());
+    let a1 = UnitMat::<Length, Length, 3, 3>::from_raw(Matrix3::identity());
+    let b1 = UnitMat::<Length, Velocity, 3, 3>::from_raw(Matrix3::zeros());
+    let c1 = UnitMat::<Velocity, Length, 3, 3>::from_raw(Matrix3::zeros());
+    let d1 = UnitMat::<Velocity, Velocity, 3, 3>::from_raw(Matrix3::identity());
 
     let m1 = BlockMat2x2::new(a1, b1, c1, d1);
     let m2 = BlockMat2x2::new(a1, b1, c1, d1);
@@ -84,10 +84,10 @@ fn covariance_propagation_dimensions() {
     type Cov = BlockMat2x2<CovRR, CovRV, CovVR, CovVV>;
 
     let p0 = Cov {
-        a: UnitMat::from_raw_unchecked(Matrix3::identity() * 100.0),
-        b: UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        c: UnitMat::from_raw_unchecked(Matrix3::zeros()),
-        d: UnitMat::from_raw_unchecked(Matrix3::identity() * 1.0),
+        a: UnitMat::from_raw(Matrix3::identity() * 100.0),
+        b: UnitMat::from_raw(Matrix3::zeros()),
+        c: UnitMat::from_raw(Matrix3::zeros()),
+        d: UnitMat::from_raw(Matrix3::identity() * 1.0),
     };
 
     // Just verify the types are correct

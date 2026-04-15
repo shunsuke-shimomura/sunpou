@@ -28,7 +28,7 @@ fn main() {
 
     // Scalar × vector (cross-dimension, cross-prefix)
     // Base prefix (the default) — can be omitted or written explicitly
-    let mass = Scalar::<Mass, Base>::from_raw_unchecked(10.0); // 10 kg (Base)
+    let mass = Scalar::<Mass, Base>::from_raw(10.0); // 10 kg (Base)
     let accel = UnitVec::<Acceleration, 3, Base>::new(0.0, 0.0, 9.8);  // m/s² (Base)
     let force_vec: UnitVec<Force, 3> = mass * accel;
     println!("F = m * a = [{}, {}, {}] N", force_vec.x(), force_vec.y(), force_vec.z());

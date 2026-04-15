@@ -43,10 +43,10 @@ fn main() {
     // STM for dt = 60 seconds (Base prefix → value is in SI seconds)
     let dt = 60.0;
     let stm = StmEci::new(
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * dt),  // 60.0 s (Base)
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity() * dt),  // 60.0 s (Base)
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::identity()),
     );
 
     // x₁ = Φ * x₀

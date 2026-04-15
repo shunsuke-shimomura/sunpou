@@ -66,12 +66,12 @@ impl<D, const N: usize, P> UnitVec<D, N, P> {
     /// Create from a slice. Panics if `slice.len() != N`.
     #[inline(always)]
     pub fn from_slice(slice: &[f64]) -> Self {
-        Self::from_raw_unchecked(SVector::from_column_slice(slice))
+        Self::from_raw(SVector::from_column_slice(slice))
     }
 
     /// Create from a raw nalgebra vector.
     #[inline(always)]
-    pub fn from_raw_unchecked(value: SVector<f64, N>) -> Self {
+    pub fn from_raw(value: SVector<f64, N>) -> Self {
         Self {
             value,
             _marker: PhantomData,
@@ -111,13 +111,13 @@ impl<D, const N: usize, P> UnitVec<D, N, P> {
     /// Create a zero vector.
     #[inline(always)]
     pub fn zeros() -> Self {
-        Self::from_raw_unchecked(SVector::zeros())
+        Self::from_raw(SVector::zeros())
     }
 
     /// Euclidean norm. Returns a scalar with same dimension and prefix.
     #[inline(always)]
     pub fn norm(&self) -> Scalar<D, P> {
-        Scalar::from_raw_unchecked(self.value.norm())
+        Scalar::from_raw(self.value.norm())
     }
 
     /// Normalize to unit length. Returns a dimensionless unit vector (base prefix).
@@ -128,7 +128,7 @@ impl<D, const N: usize, P> UnitVec<D, N, P> {
     ) -> Option<UnitVec<crate::aliases::Dimensionless, N>> {
         self.value
             .try_normalize(min_norm)
-            .map(UnitVec::from_raw_unchecked)
+            .map(UnitVec::from_raw)
     }
 
     /// Rescale to a different prefix. Multiplies all components by `10^(P - P2)`.
@@ -141,7 +141,7 @@ impl<D, const N: usize, P> UnitVec<D, N, P> {
         let factor = crate::prefix::pow10_i32(
             <<P as Sub<P2>>::Output as Integer>::to_i64() as i32,
         );
-        UnitVec::from_raw_unchecked(self.value * factor)
+        UnitVec::from_raw(self.value * factor)
     }
 }
 
@@ -151,7 +151,7 @@ impl<D, P> UnitVec<D, 3, P> {
     /// Create a 3D vector from components.
     #[inline(always)]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self::from_raw_unchecked(SVector::from([x, y, z]))
+        Self::from_raw(SVector::from([x, y, z]))
     }
 
     /// X component.
@@ -186,7 +186,7 @@ impl<D1, const N: usize, P1> UnitVec<D1, N, P1> {
         D1: DimMultiply<D2>,
         P1: Add<P2>,
     {
-        Scalar::from_raw_unchecked(self.value.dot(&rhs.value))
+        Scalar::from_raw(self.value.dot(&rhs.value))
     }
 }
 
@@ -203,7 +203,7 @@ impl<D1, P1> UnitVec<D1, 3, P1> {
         D1: DimMultiply<D2>,
         P1: Add<P2>,
     {
-        UnitVec::from_raw_unchecked(self.value.cross(&rhs.value))
+        UnitVec::from_raw(self.value.cross(&rhs.value))
     }
 }
 
@@ -213,7 +213,7 @@ impl<D, const N: usize, P> Add for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value + rhs.value)
+        Self::from_raw(self.value + rhs.value)
     }
 }
 
@@ -221,7 +221,7 @@ impl<D, const N: usize, P> Sub for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value - rhs.value)
+        Self::from_raw(self.value - rhs.value)
     }
 }
 
@@ -229,7 +229,7 @@ impl<D, const N: usize, P> Neg for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
-        Self::from_raw_unchecked(-self.value)
+        Self::from_raw(-self.value)
     }
 }
 
@@ -254,7 +254,7 @@ where
         self,
         rhs: UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, K, P2>,
     ) -> Self::Output {
-        UnitVec::from_raw_unchecked(rhs.value * self.into_raw())
+        UnitVec::from_raw(rhs.value * self.into_raw())
     }
 }
 
@@ -264,7 +264,7 @@ impl<D, const N: usize, P> Mul<f64> for UnitVec<D, N, P> {
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value * rhs)
+        Self::from_raw(self.value * rhs)
     }
 }
 
@@ -272,7 +272,7 @@ impl<D, const N: usize, P> Mul<UnitVec<D, N, P>> for f64 {
     type Output = UnitVec<D, N, P>;
     #[inline(always)]
     fn mul(self, rhs: UnitVec<D, N, P>) -> UnitVec<D, N, P> {
-        UnitVec::from_raw_unchecked(rhs.value * self)
+        UnitVec::from_raw(rhs.value * self)
     }
 }
 
@@ -305,7 +305,7 @@ impl<D, const N: usize, P> Add for &UnitVec<D, N, P> {
     type Output = UnitVec<D, N, P>;
     #[inline(always)]
     fn add(self, rhs: Self) -> UnitVec<D, N, P> {
-        UnitVec::from_raw_unchecked(self.value + rhs.value)
+        UnitVec::from_raw(self.value + rhs.value)
     }
 }
 
@@ -313,7 +313,7 @@ impl<D, const N: usize, P> Sub for &UnitVec<D, N, P> {
     type Output = UnitVec<D, N, P>;
     #[inline(always)]
     fn sub(self, rhs: Self) -> UnitVec<D, N, P> {
-        UnitVec::from_raw_unchecked(self.value - rhs.value)
+        UnitVec::from_raw(self.value - rhs.value)
     }
 }
 

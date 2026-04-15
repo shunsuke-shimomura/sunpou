@@ -36,16 +36,16 @@ impl<F, E, const R: usize, const C: usize, P> core::fmt::Debug for FrameElemMat<
 
 impl<F, E, const R: usize, const C: usize, P> FrameElemMat<F, E, R, C, P> {
     #[inline(always)]
-    pub fn from_raw_unchecked(value: SMatrix<f64, R, C>) -> Self {
+    pub fn from_raw(value: SMatrix<f64, R, C>) -> Self {
         Self { value, _marker: PhantomData }
     }
     #[inline(always)]
     pub fn from_elem_mat(m: &ElemMat<E, R, C, P>) -> Self {
-        Self::from_raw_unchecked(*m.as_raw())
+        Self::from_raw(*m.as_raw())
     }
     #[inline(always)]
     pub fn to_elem_mat(&self) -> ElemMat<E, R, C, P> {
-        ElemMat::from_raw_unchecked(self.value)
+        ElemMat::from_raw(self.value)
     }
     #[inline(always)]
     pub fn into_raw(self) -> SMatrix<f64, R, C> { self.value }
@@ -58,34 +58,34 @@ impl<F, E, const R: usize, const C: usize, P> FrameElemMat<F, E, R, C, P> {
         crate::aliases::Dimensionless: DimDivide<E>,
         Z0: Sub<P>,
     {
-        FrameElemMat::from_raw_unchecked(self.value.transpose())
+        FrameElemMat::from_raw(self.value.transpose())
     }
 
     #[inline(always)]
-    pub fn zeros() -> Self { Self::from_raw_unchecked(SMatrix::zeros()) }
+    pub fn zeros() -> Self { Self::from_raw(SMatrix::zeros()) }
 }
 
 // Identity
 impl<F, const N: usize> FrameElemMat<F, crate::aliases::Dimensionless, N, N> {
     #[inline(always)]
-    pub fn identity() -> Self { Self::from_raw_unchecked(SMatrix::identity()) }
+    pub fn identity() -> Self { Self::from_raw(SMatrix::identity()) }
 }
 
 // ---- Add/Sub/Neg ----
 impl<F, E, const R: usize, const C: usize, P> Add for FrameElemMat<F, E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn add(self, rhs: Self) -> Self { Self::from_raw_unchecked(self.value + rhs.value) }
+    fn add(self, rhs: Self) -> Self { Self::from_raw(self.value + rhs.value) }
 }
 impl<F, E, const R: usize, const C: usize, P> Sub for FrameElemMat<F, E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn sub(self, rhs: Self) -> Self { Self::from_raw_unchecked(self.value - rhs.value) }
+    fn sub(self, rhs: Self) -> Self { Self::from_raw(self.value - rhs.value) }
 }
 impl<F, E, const R: usize, const C: usize, P> Neg for FrameElemMat<F, E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn neg(self) -> Self { Self::from_raw_unchecked(-self.value) }
+    fn neg(self) -> Self { Self::from_raw(-self.value) }
 }
 impl<F, E, const R: usize, const C: usize, P> AddAssign for FrameElemMat<F, E, R, C, P> {
     #[inline(always)]
@@ -111,7 +111,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: FrameVec<F, Dim<LD, MD, TD, ID, ThD, ND, JD>, PV>) -> Self::Output {
-        FrameVec::from_raw_unchecked(self.value * rhs.into_raw())
+        FrameVec::from_raw(self.value * rhs.into_raw())
     }
 }
 
@@ -129,7 +129,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: &FrameVec<F, Dim<LD, MD, TD, ID, ThD, ND, JD>, PV>) -> Self::Output {
-        FrameVec::from_raw_unchecked(self.value * rhs.as_raw())
+        FrameVec::from_raw(self.value * rhs.as_raw())
     }
 }
 
@@ -149,7 +149,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: FrameElemMat<F, Dim<LE2, ME2, TE2, IE2, ThE2, NE2, JE2>, K, C, P2>) -> Self::Output {
-        FrameElemMat::from_raw_unchecked(self.value * rhs.value)
+        FrameElemMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -157,7 +157,7 @@ where
 impl<F, E, const R: usize, const C: usize, P> Mul<f64> for FrameElemMat<F, E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn mul(self, rhs: f64) -> Self { Self::from_raw_unchecked(self.value * rhs) }
+    fn mul(self, rhs: f64) -> Self { Self::from_raw(self.value * rhs) }
 }
 impl<F, E, const R: usize, const C: usize, P> MulAssign<f64> for FrameElemMat<F, E, R, C, P> {
     #[inline(always)]
@@ -180,7 +180,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: FrameElemMat<F, Dim<LE, ME, TE, IE, ThE, NE, JE>, R, C, PM>) -> Self::Output {
-        FrameElemMat::from_raw_unchecked(rhs.value * self.into_raw())
+        FrameElemMat::from_raw(rhs.value * self.into_raw())
     }
 }
 
@@ -192,7 +192,7 @@ impl<F, E, const N: usize, P> FrameElemMat<F, E, N, N, P> {
         crate::aliases::Dimensionless: DimDivide<E>,
         Z0: Sub<P>,
     {
-        self.value.try_inverse().map(FrameElemMat::from_raw_unchecked)
+        self.value.try_inverse().map(FrameElemMat::from_raw)
     }
 }
 
