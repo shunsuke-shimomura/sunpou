@@ -10,10 +10,11 @@ use sunpou::prelude::*;
 use sunpou::scalar::Scalar;
 
 fn main() {
-    // Newton's second law: F = m * a
-    let mass = Scalar::<Mass>::from_raw_unchecked(100.0); // 100 kg
-    let accel = Scalar::<Acceleration>::from_raw_unchecked(9.8); // 9.8 m/s²
-    let force: Scalar<Force> = mass * accel; // 980 N
+    // Newton's second law: F = m * a (Base prefix = SI base units, the default)
+    // Scalar::<Mass, Base> and Scalar::<Mass> are identical — Base can be omitted.
+    let mass = Scalar::<Mass, Base>::from_raw_unchecked(100.0); // 100 kg
+    let accel = Scalar::<Acceleration>::from_raw_unchecked(9.8); // 9.8 m/s² (Base omitted)
+    let force: Scalar<Force> = mass * accel; // 980 N, prefix: Base + Base = Base
     println!("F = m * a = {} N", force.into_raw());
 
     // === SI Prefix support ===
