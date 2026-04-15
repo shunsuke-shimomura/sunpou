@@ -3,7 +3,7 @@ name = "sunpou"
 version = "0.1.0"
 edition = "2024"
 description = "Compile-time dimensional analysis for linear algebra — scalars, vectors, matrices with SI units, coordinate frames, and prefix scaling"
-license = "MIT OR Apache-2.0"
+license = "MIT"
 
 [dependencies]
 typenum = { version = "1", default-features = false }

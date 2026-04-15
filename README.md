@@ -31,4 +31,4 @@ See `examples/` for more: `basic_scalar`, `vectors`, `frame_transform`, `orbital
 
 ## License
 
-MIT OR Apache-2.0
+MIT
