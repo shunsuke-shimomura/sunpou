@@ -2,14 +2,14 @@ error[E0308]: mismatched types
   --> tests/compile_fail/rotation_wrong_frame.rs:14:27
    |
 14 |     let _ = rot.transform(&v);
-   |                 --------- ^^ expected `&FrameVec<Eci, _>`, found `&FrameVec<Body, Dim<PInt<...>>>`
+   |                 --------- ^^ expected `&FrameVec<Eci, _, _>`, found `&FrameVec<Body, Dim<PInt<...>>>`
    |                 |
    |                 arguments to this method are incorrect
    |
-   = note: expected reference `&FrameVec<Eci, _>`
-              found reference `&FrameVec<Body, Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>>`
+   = note: expected reference `&FrameVec<Eci, _, _>`
+              found reference `&FrameVec<Body, Dim<typenum::int::PInt<typenum::uint::UInt<typenum::uint::UTerm, typenum::bit::B1>>>, typenum::int::Z0>`
 note: method defined here
   --> src/rotation.rs
    |
-   |     pub fn transform<D>(&self, v: &FrameVec<F1, D>) -> FrameVec<F2, D> {
+   |     pub fn transform<D, P>(&self, v: &FrameVec<F1, D, P>) -> FrameVec<F2, D, P> {
    |            ^^^^^^^^^
