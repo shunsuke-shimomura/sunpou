@@ -6,10 +6,10 @@
 //! - Type-safe state propagation: Φ * x₀ = x₁
 
 use nalgebra::{Matrix3, SVector};
-use uolgebra::block::{BlockMat2x2, BlockVec2};
-use uolgebra::prelude::*;
-use uolgebra::unit_mat::UnitMat;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::block::{BlockMat2x2, BlockVec2};
+use sunpou::prelude::*;
+use sunpou::unit_mat::UnitMat;
+use sunpou::unit_vec::UnitVec;
 
 /// Orbital state vector: [position (m), velocity (m/s)]
 type OrbitalState = BlockVec2<UnitVec<Length, 3>, UnitVec<Velocity, 3>>;

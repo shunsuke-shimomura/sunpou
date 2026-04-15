@@ -3,13 +3,13 @@
 ## 判断内容
 
 `FrameVec<F, D>` と `Rotation<F1, F2>` のフレーム型パラメータ `F` は、
-ユーザーが自由に定義するゼロサイズ型 (ZST) とする。uolgebra はフレームの
+ユーザーが自由に定義するゼロサイズ型 (ZST) とする。sunpou はフレームの
 具体型を提供せず、trait bound も課さない。
 
 ## 背景
 
 arika では `SimpleEci`, `Gcrs`, `Ecef` 等の具体的なフレームマーカーと
-sealed trait (`Eci`, `Ecef` 等) を提供している。uolgebra がこれらに
+sealed trait (`Eci`, `Ecef` 等) を提供している。sunpou がこれらに
 依存するか、独自に定義するか、あるいは完全にユーザーに委ねるかを決める必要がある。
 
 ## 選択肢
@@ -33,7 +33,7 @@ let v = FrameVec::<Eci, Length>::new(1.0, 0.0, 0.0);
 - **Cons**: arika への強依存。他のフレームライブラリと組み合わせ不可。
   no_std 対応に影響する可能性。
 
-### C. uolgebra 独自の Frame trait を定義
+### C. sunpou 独自の Frame trait を定義
 
 ```rust
 pub trait Frame: 'static {}

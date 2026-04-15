@@ -1,14 +1,14 @@
-//! Static assertions: verify that uolgebra types have identical memory layout
+//! Static assertions: verify that sunpou types have identical memory layout
 //! to the underlying nalgebra/f64 types (zero-cost abstraction).
 
 use core::mem::{align_of, size_of};
 use nalgebra::{Matrix3, SMatrix, SVector, UnitQuaternion, Vector3};
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::rotation::Rotation;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_mat::UnitMat;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::rotation::Rotation;
+use sunpou::scalar::Scalar;
+use sunpou::unit_mat::UnitMat;
+use sunpou::unit_vec::UnitVec;
 
 struct Eci;
 struct Ecef;

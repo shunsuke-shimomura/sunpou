@@ -1,10 +1,10 @@
 //! Tests for block matrix and block vector operations.
 
 use nalgebra::{Matrix3, SVector};
-use uolgebra::aliases::*;
-use uolgebra::block::{BlockMat2x2, BlockVec2};
-use uolgebra::unit_mat::UnitMat;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::block::{BlockMat2x2, BlockVec2};
+use sunpou::unit_mat::UnitMat;
+use sunpou::unit_vec::UnitVec;
 
 /// Orbital state transition matrix test.
 ///
@@ -27,7 +27,7 @@ fn orbital_stm_propagation() {
     let raw_r_out = raw_rr * raw_r + raw_rv * raw_v;
     let raw_v_out = raw_vr * raw_r + raw_vv * raw_v;
 
-    // uolgebra block matrix computation
+    // sunpou block matrix computation
     type Stm = BlockMat2x2<
         UnitMat<Length, Length, 3, 3>,         // ∂r/∂r₀: dimensionless
         UnitMat<Length, Velocity, 3, 3>,       // ∂r/∂v₀: time

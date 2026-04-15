@@ -1,8 +1,8 @@
-//! Cross-validation with uom: verify that uolgebra's dimension arithmetic
+//! Cross-validation with uom: verify that sunpou's dimension arithmetic
 //! produces the same numerical results as uom for representative calculations.
 
-use uolgebra::aliases::*;
-use uolgebra::scalar::Scalar;
+use sunpou::aliases::*;
+use sunpou::scalar::Scalar;
 
 #[test]
 fn velocity_from_length_div_time() {

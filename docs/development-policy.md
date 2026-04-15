@@ -1,4 +1,4 @@
-# uolgebra 開発方針
+# sunpou 開発方針
 
 ## テスト方針
 
@@ -8,7 +8,7 @@
 
 すべての線形代数演算 (加減算、スカラー倍、内積、外積、行列-ベクトル乗算、
 行列-行列乗算、転置、逆行列等) について、同じ数値を nalgebra の生の型で計算した
-結果と uolgebra の単位付き型で計算した結果が完全に一致することを検証する。
+結果と sunpou の単位付き型で計算した結果が完全に一致することを検証する。
 
 ```rust
 // 例: 内積のクロスバリデーション
@@ -29,7 +29,7 @@ assert_eq!(result.into_raw(), expected);
 - **メモリ**: `Scalar<D>` は `f64` と、`UnitVec<D, N>` は `SVector<f64, N>` と、
   `FrameVec<F, D>` は `Vector3<f64>` と、それぞれ `size_of` / `align_of` が
   同一であることをコンパイル時アサーション (`const_assert!`) で保証する
-- **計算時間**: ベンチマーク (`criterion`) で nalgebra の生の演算と uolgebra の
+- **計算時間**: ベンチマーク (`criterion`) で nalgebra の生の演算と sunpou の
   単位付き演算の実行時間を比較し、有意な劣化がないことを確認する
 - `#[repr(transparent)]` を全構造体に適用し、ABI レベルでの等価性を保証する
 

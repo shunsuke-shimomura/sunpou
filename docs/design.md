@@ -1,4 +1,4 @@
-# uolgebra — 単位付き線形代数ライブラリ
+# sunpou — 単位付き線形代数ライブラリ
 
 物理単位 (SI 次元) をコンパイル時に追跡し、スカラー・ベクトル・行列・ブロック行列を
 統一的に扱う `no_std` Rust ライブラリ。
@@ -14,7 +14,7 @@
 - **uom**: SI 次元をコンパイル時に検査するが、スカラー値のみが対象。
   ベクトル・行列・座標系フレームには非対応
 
-### uolgebra が解決すること
+### sunpou が解決すること
 
 1. スカラー・ベクトル・行列のすべてで、物理単位の整合性をコンパイル時に保証する
 2. 座標系フレームの型安全性を単位と直交する軸として統合する
@@ -36,7 +36,7 @@
 
 ### uom との差異
 
-| | uom | uolgebra |
+| | uom | sunpou |
 |---|---|---|
 | スカラー | `Quantity<D, U, V>` | `Scalar<D>` |
 | ベクトル | 非対応 | `UnitVec<D, N>`, `FrameVec<F, D>` |
@@ -163,9 +163,9 @@ pub struct Body;   // Spacecraft body-fixed
 pub struct Rsw;    // Radial / Along-track / Cross-track
 ```
 
-**arika との関係**: uolgebra はフレームマーカーを trait bound として定義し、
+**arika との関係**: sunpou はフレームマーカーを trait bound として定義し、
 arika の具体型 (`SimpleEci`, `Gcrs` 等) をマーカーとして使えるように設計する。
-uolgebra 自体は arika に依存せず、ユーザーが任意のフレーム型を定義できる。
+sunpou 自体は arika に依存せず、ユーザーが任意のフレーム型を定義できる。
 
 ### 行列: `UnitMat<DR, DC, const R: usize, const C: usize>`
 
@@ -393,7 +393,7 @@ impl<D: SiBaseUnit> Scalar<D> {
 ### 1. 基本的な物理計算
 
 ```rust
-use uolgebra::prelude::*;
+use sunpou::prelude::*;
 
 let mass = Scalar::<Mass>::from_si(100.0);        // 100 kg
 let accel = Scalar::<Acceleration>::from_si(9.8);  // 9.8 m/s²

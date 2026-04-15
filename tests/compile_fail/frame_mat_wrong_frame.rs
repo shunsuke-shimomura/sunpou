@@ -1,8 +1,8 @@
 /// FrameUnitMat in ECI frame must not multiply FrameVec in ECEF frame.
 use nalgebra::Matrix3;
-use uolgebra::aliases::*;
-use uolgebra::frame_unit_mat::FrameUnitMat;
-use uolgebra::frame_vec::FrameVec;
+use sunpou::aliases::*;
+use sunpou::frame_unit_mat::FrameUnitMat;
+use sunpou::frame_vec::FrameVec;
 
 struct Eci;
 struct Ecef;

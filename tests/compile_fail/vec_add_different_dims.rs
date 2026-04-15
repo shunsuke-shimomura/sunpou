@@ -1,7 +1,7 @@
 /// Adding vectors with different dimensions must not compile.
 use nalgebra::SVector;
-use uolgebra::aliases::*;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::unit_vec::UnitVec;
 
 fn main() {
     let a = UnitVec::<Length, 3>::from_raw_unchecked(SVector::from([1.0, 2.0, 3.0]));

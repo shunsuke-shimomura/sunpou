@@ -5,8 +5,8 @@
 //! - Arithmetic that produces correct output dimensions
 //! - Compile-time prevention of invalid operations
 
-use uolgebra::prelude::*;
-use uolgebra::scalar::Scalar;
+use sunpou::prelude::*;
+use sunpou::scalar::Scalar;
 
 fn main() {
     // Newton's second law: F = m * a

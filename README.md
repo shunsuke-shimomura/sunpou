@@ -1,6 +1,6 @@
-# uolgebra
+# sunpou (寸法)
 
-Unit-aware linear algebra library for Rust with compile-time SI dimension checking.
+Compile-time dimensional analysis for linear algebra — scalars, vectors, matrices with SI units, coordinate frames, and prefix scaling.
 
 ## Features
 
@@ -15,8 +15,8 @@ Unit-aware linear algebra library for Rust with compile-time SI dimension checki
 ## Quick Example
 
 ```rust
-use uolgebra::prelude::*;
-use uolgebra::scalar::Scalar;
+use sunpou::prelude::*;
+use sunpou::scalar::Scalar;
 
 // F = m * a — dimensions checked at compile time
 let mass = Scalar::<Mass>::from_raw_unchecked(100.0);

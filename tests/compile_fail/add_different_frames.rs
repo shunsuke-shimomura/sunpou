@@ -1,6 +1,6 @@
 /// Adding frame vectors in different frames must not compile.
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
 
 struct Eci;
 struct Ecef;

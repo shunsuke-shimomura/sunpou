@@ -1,10 +1,10 @@
 //! Tests for Round 3 features: conversions, indexing, Display, From<f64>
 
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_vec::UnitVec;
-use uolgebra::rotation::Rotation;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::scalar::Scalar;
+use sunpou::unit_vec::UnitVec;
+use sunpou::rotation::Rotation;
 
 extern crate alloc;
 use alloc::format;

@@ -1,13 +1,13 @@
-//! Cross-validation: every uolgebra operation must produce identical results
+//! Cross-validation: every sunpou operation must produce identical results
 //! to the equivalent raw nalgebra operation.
 
 use nalgebra::{Matrix3, SVector, Vector3};
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::rotation::Rotation;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_mat::UnitMat;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::rotation::Rotation;
+use sunpou::scalar::Scalar;
+use sunpou::unit_mat::UnitMat;
+use sunpou::unit_vec::UnitVec;
 
 struct Eci;
 struct Ecef;

@@ -1,9 +1,9 @@
 //! Test BlockMat2x2::transpose()
 
 use nalgebra::Matrix3;
-use uolgebra::aliases::*;
-use uolgebra::block::BlockMat2x2;
-use uolgebra::unit_mat::UnitMat;
+use sunpou::aliases::*;
+use sunpou::block::BlockMat2x2;
+use sunpou::unit_mat::UnitMat;
 
 type Stm = BlockMat2x2<
     UnitMat<Length, Length, 3, 3>,

@@ -1,11 +1,11 @@
 //! Edge case tests: NaN, infinity, zero, singular matrices.
 
 use nalgebra::Matrix3;
-use uolgebra::aliases::*;
-use uolgebra::frame_vec::FrameVec;
-use uolgebra::scalar::Scalar;
-use uolgebra::unit_mat::UnitMat;
-use uolgebra::unit_vec::UnitVec;
+use sunpou::aliases::*;
+use sunpou::frame_vec::FrameVec;
+use sunpou::scalar::Scalar;
+use sunpou::unit_mat::UnitMat;
+use sunpou::unit_vec::UnitVec;
 
 struct Eci;
 
