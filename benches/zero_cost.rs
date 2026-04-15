@@ -23,8 +23,8 @@ fn bench_scalar_mul(c: &mut Criterion) {
     });
 
     group.bench_function("sunpou", |b| {
-        let a = black_box(Scalar::<Mass>::from_raw_unchecked(3.0));
-        let x = black_box(Scalar::<Acceleration>::from_raw_unchecked(9.8));
+        let a = black_box(Scalar::<Mass>::from_raw(3.0));
+        let x = black_box(Scalar::<Acceleration>::from_raw(9.8));
         b.iter(|| a * x)
     });
 
@@ -41,10 +41,10 @@ fn bench_vec3_dot(c: &mut Criterion) {
     });
 
     group.bench_function("sunpou_unitvec", |b| {
-        let a = black_box(UnitVec::<Length, 3>::from_raw_unchecked(
+        let a = black_box(UnitVec::<Length, 3>::from_raw(
             SVector::from([1.0, 2.0, 3.0]),
         ));
-        let x = black_box(UnitVec::<Velocity, 3>::from_raw_unchecked(
+        let x = black_box(UnitVec::<Velocity, 3>::from_raw(
             SVector::from([4.0, 5.0, 6.0]),
         ));
         b.iter(|| a.dot(&x))
@@ -69,10 +69,10 @@ fn bench_mat3_mul_vec(c: &mut Criterion) {
     });
 
     group.bench_function("sunpou", |b| {
-        let m = black_box(UnitMat::<Velocity, Length, 3, 3>::from_raw_unchecked(
+        let m = black_box(UnitMat::<Velocity, Length, 3, 3>::from_raw(
             Matrix3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0),
         ));
-        let v = black_box(UnitVec::<Length, 3>::from_raw_unchecked(
+        let v = black_box(UnitVec::<Length, 3>::from_raw(
             SVector::from([1.0, 2.0, 3.0]),
         ));
         b.iter(|| m * v)
@@ -91,10 +91,10 @@ fn bench_vec3_cross(c: &mut Criterion) {
     });
 
     group.bench_function("sunpou", |b| {
-        let a = black_box(UnitVec::<Length, 3>::from_raw_unchecked(
+        let a = black_box(UnitVec::<Length, 3>::from_raw(
             SVector::from([1.0, 2.0, 3.0]),
         ));
-        let x = black_box(UnitVec::<Velocity, 3>::from_raw_unchecked(
+        let x = black_box(UnitVec::<Velocity, 3>::from_raw(
             SVector::from([4.0, 5.0, 6.0]),
         ));
         b.iter(|| a.cross(&x))

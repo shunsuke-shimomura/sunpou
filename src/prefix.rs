@@ -28,8 +28,8 @@ use typenum::consts::*;
 ///
 /// ```rust,ignore
 /// // These are identical:
-/// Scalar::<Length, Base>::from_raw_unchecked(1000.0)
-/// Scalar::<Length>::from_raw_unchecked(1000.0)       // Base is the default
+/// Scalar::<Length, Base>::from_raw(1000.0)
+/// Scalar::<Length>::from_raw(1000.0)       // Base is the default
 /// ```
 pub type Base = Z0;
 

@@ -20,7 +20,7 @@ fn inertia_tensor_rescale() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
 
     // Start with the I·ω = L interpretation
-    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
 
     // Rescale to I·ω̇ = τ interpretation
     let i_acc: FrameUnitMat<Body, Torque, AngularAcceleration, 3, 3> =
@@ -44,7 +44,7 @@ fn inertia_tensor_rescale() {
 fn inertia_rescale_then_inverse() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
 
-    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
 
     // Rescale to torque interpretation, then invert
     let i_acc: FrameUnitMat<Body, Torque, AngularAcceleration, 3, 3> =
@@ -66,7 +66,7 @@ fn inertia_rescale_then_inverse() {
 #[test]
 fn rescale_roundtrip() {
     let i_raw = Matrix3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
-    let original = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let original = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
 
     // Rescale forward: ×InvTime
     let rescaled: FrameUnitMat<Body, Torque, AngularAcceleration, 3, 3> =
@@ -87,7 +87,7 @@ fn rescale_roundtrip() {
 fn unit_mat_rescale() {
     let raw = Matrix3::identity() * 42.0;
 
-    let m = UnitMat::<AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(raw);
+    let m = UnitMat::<AngularMomentum, AngularVelocity, 3, 3>::from_raw(raw);
     let m2: UnitMat<Torque, AngularAcceleration, 3, 3> = m.rescale_dims::<InvTime>();
 
     assert_eq!(m.into_raw(), m2.into_raw());
@@ -110,7 +110,7 @@ fn mass_matrix_rescale() {
     let m_raw = Matrix3::identity() * 10.0; // 10 kg (diagonal)
 
     // M · a = F
-    let m_force = FrameUnitMat::<Eci, Force, Acceleration, 3, 3>::from_raw_unchecked(m_raw);
+    let m_force = FrameUnitMat::<Eci, Force, Acceleration, 3, 3>::from_raw(m_raw);
 
     // Rescale: both ×Time → M · v = p (momentum)
     let m_momentum: FrameUnitMat<Eci, Momentum, Velocity, 3, 3> =
@@ -136,7 +136,7 @@ fn mass_matrix_rescale() {
 fn damping_matrix_rescale() {
     let c_raw = Matrix3::identity() * 5.0; // 5 N·s/m
 
-    let c_vel = FrameUnitMat::<Eci, Force, Velocity, 3, 3>::from_raw_unchecked(c_raw);
+    let c_vel = FrameUnitMat::<Eci, Force, Velocity, 3, 3>::from_raw(c_raw);
     let c_pos: FrameUnitMat<Eci, Momentum, Length, 3, 3> = c_vel.rescale_dims::<Time>();
 
     assert_eq!(c_vel.into_raw(), c_pos.into_raw());
@@ -148,7 +148,7 @@ fn damping_matrix_rescale() {
 
 #[test]
 fn rescale_preserves_frame() {
-    let m = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(
+    let m = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(
         Matrix3::identity(),
     );
 
@@ -165,14 +165,14 @@ fn rescale_preserves_frame() {
 // 6. Full Euler equation using rescale_dims
 // ============================================================================
 
-/// Complete Euler equation test using only one from_raw_unchecked call
+/// Complete Euler equation test using only one from_raw call
 /// and rescale_dims for the second interpretation.
 #[test]
 fn euler_equation_with_rescale() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
 
     // Define I once as I·ω = L
-    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw_unchecked(i_raw);
+    let i_vel = FrameUnitMat::<Body, AngularMomentum, AngularVelocity, 3, 3>::from_raw(i_raw);
 
     // Derive the Euler equation interpretation via rescale
     let i_acc_inv = i_vel

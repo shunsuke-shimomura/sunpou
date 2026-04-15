@@ -22,7 +22,7 @@ struct Body;
 #[test]
 fn inertia_tensor_automatic_inference() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
-    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw_unchecked(i_raw);
+    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw(i_raw);
 
     // Use 1: I * ω = L (MomentOfInertia * AngularVelocity = AngularMomentum)
     let omega = FrameVec::<Body, AngularVelocity>::new(0.1, 0.0, 0.0);
@@ -48,7 +48,7 @@ fn inertia_tensor_automatic_inference() {
 #[test]
 fn mass_matrix_automatic_inference() {
     let mass_val = 10.0;
-    let m = FrameElemMat::<Eci, Mass, 3, 3>::from_raw_unchecked(Matrix3::identity() * mass_val);
+    let m = FrameElemMat::<Eci, Mass, 3, 3>::from_raw(Matrix3::identity() * mass_val);
 
     // M * a = F
     let accel = FrameVec::<Eci, Acceleration>::new(0.0, 0.0, 9.8);
@@ -62,13 +62,13 @@ fn mass_matrix_automatic_inference() {
 }
 
 // ============================================================================
-// 2. EULER EQUATION — full test with single from_raw_unchecked
+// 2. EULER EQUATION — full test with single from_raw
 // ============================================================================
 
 #[test]
 fn euler_equation_complete() {
     let i_raw = Matrix3::new(100.0, 0.0, 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 150.0);
-    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw_unchecked(i_raw);
+    let inertia = FrameElemMat::<Body, MomentOfInertia, 3, 3>::from_raw(i_raw);
     let i_inv = inertia.try_inverse().unwrap();
 
     let omega = FrameVec::<Body, AngularVelocity>::new(0.1, 0.05, 0.0);
@@ -100,13 +100,13 @@ fn euler_equation_complete() {
 fn pd_attitude_controller_elem() {
     // Kp element dim = Torque (since angle error is Dimensionless)
     // Kp * θ_err(Dimensionless) → Torque * Dimensionless = Torque
-    let kp = FrameElemMat::<Body, Torque, 3, 3>::from_raw_unchecked(
+    let kp = FrameElemMat::<Body, Torque, 3, 3>::from_raw(
         Matrix3::identity() * 10.0,
     );
 
     // Kv element dim = AngularMomentum = Torque * Time
     // Kv * ω_err(AngularVelocity=1/s) → AngularMomentum * (1/s) = Torque
-    let kv = FrameElemMat::<Body, AngularMomentum, 3, 3>::from_raw_unchecked(
+    let kv = FrameElemMat::<Body, AngularMomentum, 3, 3>::from_raw(
         Matrix3::identity() * 5.0,
     );
 
@@ -154,8 +154,8 @@ fn pd_position_controller_elem() {
     type ForcePerLength = <Force as sunpou::dim::DimDivide<Length>>::Output;
     type ForcePerVelocity = <Force as sunpou::dim::DimDivide<Velocity>>::Output;
 
-    let kp = FrameElemMat::<Eci, ForcePerLength, 3, 3>::from_raw_unchecked(kp_raw);
-    let kv = FrameElemMat::<Eci, ForcePerVelocity, 3, 3>::from_raw_unchecked(kv_raw);
+    let kp = FrameElemMat::<Eci, ForcePerLength, 3, 3>::from_raw(kp_raw);
+    let kv = FrameElemMat::<Eci, ForcePerVelocity, 3, 3>::from_raw(kv_raw);
 
     let dr = FrameVec::<Eci, Length>::new(100.0, 0.0, 0.0);
     let dv = FrameVec::<Eci, Velocity>::new(1.0, 0.0, 0.0);
@@ -171,25 +171,25 @@ fn pd_position_controller_elem() {
 #[test]
 fn transpose_inverts_elem_dim() {
     let raw = Matrix3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
-    let m = ElemMat::<Mass, 3, 3>::from_raw_unchecked(raw);
+    let m = ElemMat::<Mass, 3, 3>::from_raw(raw);
 
     // Transpose: E → 1/E
     let mt = m.transpose();
     assert_eq!(mt.into_raw(), raw.transpose());
 
     // If we multiply mt by a Force vector, output = (1/Mass) * Force = Acceleration
-    let f = UnitVec::<Force, 3>::from_raw_unchecked(nalgebra::SVector::from([1.0, 0.0, 0.0]));
+    let f = UnitVec::<Force, 3>::from_raw(nalgebra::SVector::from([1.0, 0.0, 0.0]));
     let _a: UnitVec<Acceleration, 3> = mt * f;
 }
 
 #[test]
 fn inverse_inverts_elem_dim() {
     let raw = Matrix3::new(2.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 4.0);
-    let m = ElemMat::<Mass, 3, 3>::from_raw_unchecked(raw);
+    let m = ElemMat::<Mass, 3, 3>::from_raw(raw);
     let m_inv = m.try_inverse().unwrap();
 
     // M * v = p, M⁻¹ * p = v
-    let p = UnitVec::<Momentum, 3>::from_raw_unchecked(nalgebra::SVector::from([6.0, 9.0, 12.0]));
+    let p = UnitVec::<Momentum, 3>::from_raw(nalgebra::SVector::from([6.0, 9.0, 12.0]));
     let v: UnitVec<Velocity, 3> = m_inv * p;
     assert!((v[0] - 3.0).abs() < 1e-14);
     assert!((v[1] - 3.0).abs() < 1e-14);
@@ -218,10 +218,10 @@ fn orbital_stm_frame_elem() {
     type StateEci = BlockVec2<FrameVec<Eci, Length>, FrameVec<Eci, Velocity>>;
 
     let stm = StmEci::new(
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * dt),
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity() * dt),
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::identity()),
     );
 
     let x0 = StateEci::new(
@@ -274,7 +274,7 @@ fn gravity_gradient_elem() {
 
     // Element dim of gravity gradient: Acceleration/Length = 1/s²
     // (= InvTime * InvTime... but we use AngularAcceleration = 1/s² as alias)
-    let g = FrameElemMat::<Eci, AngularAcceleration, 3, 3>::from_raw_unchecked(Matrix3::new(
+    let g = FrameElemMat::<Eci, AngularAcceleration, 3, 3>::from_raw(Matrix3::new(
         2.0 * mu / r3, 0.0, 0.0,
         0.0, -mu / r3, 0.0,
         0.0, 0.0, -mu / r3,

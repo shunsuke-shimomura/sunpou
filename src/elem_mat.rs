@@ -35,7 +35,7 @@ impl<E, const R: usize, const C: usize, P> core::fmt::Debug for ElemMat<E, R, C,
 
 impl<E, const R: usize, const C: usize, P> ElemMat<E, R, C, P> {
     #[inline(always)]
-    pub fn from_raw_unchecked(value: SMatrix<f64, R, C>) -> Self {
+    pub fn from_raw(value: SMatrix<f64, R, C>) -> Self {
         Self { value, _marker: PhantomData }
     }
     #[inline(always)]
@@ -50,34 +50,34 @@ impl<E, const R: usize, const C: usize, P> ElemMat<E, R, C, P> {
         crate::aliases::Dimensionless: DimDivide<E>,
         Z0: Sub<P>,
     {
-        ElemMat::from_raw_unchecked(self.value.transpose())
+        ElemMat::from_raw(self.value.transpose())
     }
 
     #[inline(always)]
-    pub fn zeros() -> Self { Self::from_raw_unchecked(SMatrix::zeros()) }
+    pub fn zeros() -> Self { Self::from_raw(SMatrix::zeros()) }
 }
 
 // Identity: dimensionless, base prefix
 impl<const N: usize> ElemMat<crate::aliases::Dimensionless, N, N> {
     #[inline(always)]
-    pub fn identity() -> Self { Self::from_raw_unchecked(SMatrix::identity()) }
+    pub fn identity() -> Self { Self::from_raw(SMatrix::identity()) }
 }
 
 // ---- Add/Sub/Neg (same E, same P) ----
 impl<E, const R: usize, const C: usize, P> Add for ElemMat<E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn add(self, rhs: Self) -> Self { Self::from_raw_unchecked(self.value + rhs.value) }
+    fn add(self, rhs: Self) -> Self { Self::from_raw(self.value + rhs.value) }
 }
 impl<E, const R: usize, const C: usize, P> Sub for ElemMat<E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn sub(self, rhs: Self) -> Self { Self::from_raw_unchecked(self.value - rhs.value) }
+    fn sub(self, rhs: Self) -> Self { Self::from_raw(self.value - rhs.value) }
 }
 impl<E, const R: usize, const C: usize, P> Neg for ElemMat<E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn neg(self) -> Self { Self::from_raw_unchecked(-self.value) }
+    fn neg(self) -> Self { Self::from_raw(-self.value) }
 }
 impl<E, const R: usize, const C: usize, P> AddAssign for ElemMat<E, R, C, P> {
     #[inline(always)]
@@ -103,7 +103,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: UnitVec<Dim<L2, M2, T2, I2, Th2, N2, J2>, C, PV>) -> Self::Output {
-        UnitVec::from_raw_unchecked(self.value * rhs.into_raw())
+        UnitVec::from_raw(self.value * rhs.into_raw())
     }
 }
 
@@ -122,7 +122,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: ElemMat<Dim<L2, M2, T2, I2, Th2, N2, J2>, K, C, P2>) -> Self::Output {
-        ElemMat::from_raw_unchecked(self.value * rhs.value)
+        ElemMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -130,7 +130,7 @@ where
 impl<E, const R: usize, const C: usize, P> Mul<f64> for ElemMat<E, R, C, P> {
     type Output = Self;
     #[inline(always)]
-    fn mul(self, rhs: f64) -> Self { Self::from_raw_unchecked(self.value * rhs) }
+    fn mul(self, rhs: f64) -> Self { Self::from_raw(self.value * rhs) }
 }
 impl<E, const R: usize, const C: usize, P> MulAssign<f64> for ElemMat<E, R, C, P> {
     #[inline(always)]
@@ -145,7 +145,7 @@ impl<E, const N: usize, P> ElemMat<E, N, N, P> {
         crate::aliases::Dimensionless: DimDivide<E>,
         Z0: Sub<P>,
     {
-        self.value.try_inverse().map(ElemMat::from_raw_unchecked)
+        self.value.try_inverse().map(ElemMat::from_raw)
     }
 }
 

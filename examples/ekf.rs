@@ -55,27 +55,27 @@ fn main() {
 
     // Initial covariance (values in km²/km·(km/s)/(km/s)² via prefix composition)
     let p0 = Covariance::new(
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 0.01),  // σ_r = 0.1 km → 0.01 km²
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-6),  // σ_v = 0.001 km/s
+        FrameElemMat::from_raw(Matrix3::identity() * 0.01),  // σ_r = 0.1 km → 0.01 km²
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::identity() * 1e-6),  // σ_v = 0.001 km/s
     );
 
     // Process noise (Base prefix)
     let q = Covariance::new(
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-4),
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * 1e-8),
+        FrameElemMat::from_raw(Matrix3::identity() * 1e-4),
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::identity() * 1e-8),
     );
 
     // STM (dt = 60 s, Base prefix)
     let dt = 60.0;
     let phi = Stm::new(
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity() * dt),
-        FrameElemMat::from_raw_unchecked(Matrix3::zeros()),
-        FrameElemMat::from_raw_unchecked(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity()),
+        FrameElemMat::from_raw(Matrix3::identity() * dt),
+        FrameElemMat::from_raw(Matrix3::zeros()),
+        FrameElemMat::from_raw(Matrix3::identity()),
     );
 
     // === Prediction Step ===

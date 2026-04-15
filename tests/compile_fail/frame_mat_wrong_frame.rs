@@ -9,7 +9,7 @@ struct Ecef;
 
 fn main() {
     // Matrix defined in ECI frame
-    let stm = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw_unchecked(
+    let stm = FrameUnitMat::<Eci, Velocity, Length, 3, 3>::from_raw(
         Matrix3::identity(),
     );
     // Vector in ECEF frame

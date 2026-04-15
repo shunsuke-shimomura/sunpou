@@ -15,6 +15,7 @@ pub mod elem_mat;
 pub mod frame_elem_mat;
 pub mod block;
 pub mod aliases;
+pub mod units;
 
 // Legacy modules — kept for backward compatibility, prefer ElemMat/FrameElemMat
 #[doc(hidden)]
@@ -32,4 +33,5 @@ pub mod prelude {
     pub use crate::rotation::Rotation;
     pub use crate::scalar::Scalar;
     pub use crate::unit_vec::UnitVec;
+    pub use crate::units::UnitLiteral;
 }

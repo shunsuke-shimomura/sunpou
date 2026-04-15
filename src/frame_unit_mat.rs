@@ -81,7 +81,7 @@ impl<F, DR, DC, const R: usize, const C: usize> core::fmt::Debug
 impl<F, DR, DC, const R: usize, const C: usize> FrameUnitMat<F, DR, DC, R, C> {
     /// Create from a raw nalgebra matrix. Caller ensures correct frame and units.
     #[inline(always)]
-    pub fn from_raw_unchecked(value: SMatrix<f64, R, C>) -> Self {
+    pub fn from_raw(value: SMatrix<f64, R, C>) -> Self {
         Self {
             value,
             _marker: PhantomData,
@@ -91,7 +91,7 @@ impl<F, DR, DC, const R: usize, const C: usize> FrameUnitMat<F, DR, DC, R, C> {
     /// Create from a frame-less UnitMat by attaching a frame tag.
     #[inline(always)]
     pub fn from_unit_mat(m: &crate::unit_mat::UnitMat<DR, DC, R, C>) -> Self {
-        Self::from_raw_unchecked(*m.as_raw())
+        Self::from_raw(*m.as_raw())
     }
 
     /// Extract the raw nalgebra matrix.
@@ -109,20 +109,20 @@ impl<F, DR, DC, const R: usize, const C: usize> FrameUnitMat<F, DR, DC, R, C> {
     /// Strip the frame tag, returning a frame-less UnitMat.
     #[inline(always)]
     pub fn to_unit_mat(&self) -> crate::unit_mat::UnitMat<DR, DC, R, C> {
-        crate::unit_mat::UnitMat::from_raw_unchecked(self.value)
+        crate::unit_mat::UnitMat::from_raw(self.value)
     }
 
     /// Transpose: `FrameUnitMat<F, DR, DC, R, C> → FrameUnitMat<F, DC, DR, C, R>`.
     /// Frame is preserved.
     #[inline(always)]
     pub fn transpose(&self) -> FrameUnitMat<F, DC, DR, C, R> {
-        FrameUnitMat::from_raw_unchecked(self.value.transpose())
+        FrameUnitMat::from_raw(self.value.transpose())
     }
 
     /// Zero matrix.
     #[inline(always)]
     pub fn zeros() -> Self {
-        Self::from_raw_unchecked(SMatrix::zeros())
+        Self::from_raw(SMatrix::zeros())
     }
 
     /// Rescale both row and column dimensions by the same factor `S`.
@@ -160,7 +160,7 @@ impl<F, DR, DC, const R: usize, const C: usize> FrameUnitMat<F, DR, DC, R, C> {
         DR: DimMultiply<S>,
         DC: DimMultiply<S>,
     {
-        FrameUnitMat::from_raw_unchecked(self.value)
+        FrameUnitMat::from_raw(self.value)
     }
 }
 
@@ -170,7 +170,7 @@ impl<F, D, const N: usize> FrameUnitMat<F, D, D, N, N> {
     /// Identity matrix. Only available when DR == DC.
     #[inline(always)]
     pub fn identity() -> Self {
-        Self::from_raw_unchecked(SMatrix::identity())
+        Self::from_raw(SMatrix::identity())
     }
 }
 
@@ -180,7 +180,7 @@ impl<F, DR, DC, const R: usize, const C: usize> Add for FrameUnitMat<F, DR, DC, 
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value + rhs.value)
+        Self::from_raw(self.value + rhs.value)
     }
 }
 
@@ -188,7 +188,7 @@ impl<F, DR, DC, const R: usize, const C: usize> Sub for FrameUnitMat<F, DR, DC, 
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value - rhs.value)
+        Self::from_raw(self.value - rhs.value)
     }
 }
 
@@ -196,7 +196,7 @@ impl<F, DR, DC, const R: usize, const C: usize> Neg for FrameUnitMat<F, DR, DC, 
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
-        Self::from_raw_unchecked(-self.value)
+        Self::from_raw(-self.value)
     }
 }
 
@@ -222,7 +222,7 @@ impl<F, DR, DC> Mul<FrameVec<F, DC>> for FrameUnitMat<F, DR, DC, 3, 3> {
     type Output = FrameVec<F, DR>;
     #[inline(always)]
     fn mul(self, rhs: FrameVec<F, DC>) -> FrameVec<F, DR> {
-        FrameVec::from_raw_unchecked(self.value * rhs.into_raw())
+        FrameVec::from_raw(self.value * rhs.into_raw())
     }
 }
 
@@ -230,7 +230,7 @@ impl<F, DR, DC> Mul<&FrameVec<F, DC>> for &FrameUnitMat<F, DR, DC, 3, 3> {
     type Output = FrameVec<F, DR>;
     #[inline(always)]
     fn mul(self, rhs: &FrameVec<F, DC>) -> FrameVec<F, DR> {
-        FrameVec::from_raw_unchecked(self.value * rhs.as_raw())
+        FrameVec::from_raw(self.value * rhs.as_raw())
     }
 }
 
@@ -243,7 +243,7 @@ impl<F, DR, DM, DC, const R: usize, const K: usize, const C: usize>
     type Output = FrameUnitMat<F, DR, DC, R, C>;
     #[inline(always)]
     fn mul(self, rhs: FrameUnitMat<F, DM, DC, K, C>) -> FrameUnitMat<F, DR, DC, R, C> {
-        FrameUnitMat::from_raw_unchecked(self.value * rhs.value)
+        FrameUnitMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -253,7 +253,7 @@ impl<F, DR, DM, DC, const R: usize, const K: usize, const C: usize>
     type Output = FrameUnitMat<F, DR, DC, R, C>;
     #[inline(always)]
     fn mul(self, rhs: &FrameUnitMat<F, DM, DC, K, C>) -> FrameUnitMat<F, DR, DC, R, C> {
-        FrameUnitMat::from_raw_unchecked(self.value * rhs.value)
+        FrameUnitMat::from_raw(self.value * rhs.value)
     }
 }
 
@@ -263,7 +263,7 @@ impl<F, DR, DC, const R: usize, const C: usize> Mul<f64> for FrameUnitMat<F, DR,
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value * rhs)
+        Self::from_raw(self.value * rhs)
     }
 }
 
@@ -298,7 +298,7 @@ where
         self,
         rhs: FrameUnitMat<F, Dim<LR, MR, TR, IR, ThR, NR, JR>, DC, R, C>,
     ) -> Self::Output {
-        FrameUnitMat::from_raw_unchecked(rhs.value * self.into_raw())
+        FrameUnitMat::from_raw(rhs.value * self.into_raw())
     }
 }
 
@@ -311,7 +311,7 @@ impl<F, DR, DC, const N: usize> FrameUnitMat<F, DR, DC, N, N> {
     pub fn try_inverse(&self) -> Option<FrameUnitMat<F, DC, DR, N, N>> {
         self.value
             .try_inverse()
-            .map(FrameUnitMat::from_raw_unchecked)
+            .map(FrameUnitMat::from_raw)
     }
 }
 

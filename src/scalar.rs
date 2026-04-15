@@ -61,7 +61,7 @@ impl<D, P> core::fmt::Display for Scalar<D, P> {
 impl<D, P> Default for Scalar<D, P> {
     #[inline(always)]
     fn default() -> Self {
-        Self::from_raw_unchecked(0.0)
+        Self::from_raw(0.0)
     }
 }
 
@@ -71,7 +71,7 @@ impl<D, P> Scalar<D, P> {
     /// For `Scalar<Length, Kilo>`, the value is in kilometers.
     /// For `Scalar<Length, Z0>` (or just `Scalar<Length>`), the value is in meters.
     #[inline(always)]
-    pub fn from_raw_unchecked(value: f64) -> Self {
+    pub fn from_raw(value: f64) -> Self {
         Self {
             value,
             _marker: PhantomData,
@@ -93,7 +93,7 @@ impl<D, P> Scalar<D, P> {
     /// Absolute value, preserving dimension and prefix.
     #[inline(always)]
     pub fn abs(self) -> Self {
-        Self::from_raw_unchecked(if self.value < 0.0 {
+        Self::from_raw(if self.value < 0.0 {
             -self.value
         } else {
             self.value
@@ -114,7 +114,7 @@ impl<D, P> Scalar<D, P> {
     /// Rescale to a different prefix. Multiplies internal value by `10^(P - P2)`.
     ///
     /// ```rust,ignore
-    /// let km = Scalar::<Length, Kilo>::from_raw_unchecked(7.0); // 7 km
+    /// let km = Scalar::<Length, Kilo>::from_raw(7.0); // 7 km
     /// let m: Scalar<Length, Base> = km.rescale();               // 7000 m
     /// ```
     #[inline(always)]
@@ -124,7 +124,7 @@ impl<D, P> Scalar<D, P> {
         <P as Sub<P2>>::Output: Integer,
     {
         let exp = <<P as Sub<P2>>::Output as Integer>::to_i64() as i32;
-        Scalar::from_raw_unchecked(self.value * crate::prefix::pow10_i32(exp))
+        Scalar::from_raw(self.value * crate::prefix::pow10_i32(exp))
     }
 }
 
@@ -134,7 +134,7 @@ impl<D, P> Add for Scalar<D, P> {
     type Output = Self;
     #[inline(always)]
     fn add(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value + rhs.value)
+        Self::from_raw(self.value + rhs.value)
     }
 }
 
@@ -142,7 +142,7 @@ impl<D, P> Sub for Scalar<D, P> {
     type Output = Self;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Self {
-        Self::from_raw_unchecked(self.value - rhs.value)
+        Self::from_raw(self.value - rhs.value)
     }
 }
 
@@ -150,7 +150,7 @@ impl<D, P> Neg for Scalar<D, P> {
     type Output = Self;
     #[inline(always)]
     fn neg(self) -> Self {
-        Self::from_raw_unchecked(-self.value)
+        Self::from_raw(-self.value)
     }
 }
 
@@ -171,7 +171,7 @@ where
     >;
     #[inline(always)]
     fn mul(self, rhs: Scalar<Dim<L2, M2, T2, I2, Th2, N2, J2>, P2>) -> Self::Output {
-        Scalar::from_raw_unchecked(self.value * rhs.value)
+        Scalar::from_raw(self.value * rhs.value)
     }
 }
 
@@ -190,7 +190,7 @@ where
     >;
     #[inline(always)]
     fn div(self, rhs: Scalar<Dim<L2, M2, T2, I2, Th2, N2, J2>, P2>) -> Self::Output {
-        Scalar::from_raw_unchecked(self.value / rhs.value)
+        Scalar::from_raw(self.value / rhs.value)
     }
 }
 
@@ -200,7 +200,7 @@ impl<D, P> Mul<f64> for Scalar<D, P> {
     type Output = Self;
     #[inline(always)]
     fn mul(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value * rhs)
+        Self::from_raw(self.value * rhs)
     }
 }
 
@@ -208,7 +208,7 @@ impl<D, P> Div<f64> for Scalar<D, P> {
     type Output = Self;
     #[inline(always)]
     fn div(self, rhs: f64) -> Self {
-        Self::from_raw_unchecked(self.value / rhs)
+        Self::from_raw(self.value / rhs)
     }
 }
 
@@ -216,7 +216,7 @@ impl<D, P> Mul<Scalar<D, P>> for f64 {
     type Output = Scalar<D, P>;
     #[inline(always)]
     fn mul(self, rhs: Scalar<D, P>) -> Scalar<D, P> {
-        Scalar::from_raw_unchecked(self * rhs.value)
+        Scalar::from_raw(self * rhs.value)
     }
 }
 
@@ -256,7 +256,7 @@ impl<D, P> Add for &Scalar<D, P> {
     type Output = Scalar<D, P>;
     #[inline(always)]
     fn add(self, rhs: Self) -> Scalar<D, P> {
-        Scalar::from_raw_unchecked(self.value + rhs.value)
+        Scalar::from_raw(self.value + rhs.value)
     }
 }
 
@@ -264,7 +264,7 @@ impl<D, P> Sub for &Scalar<D, P> {
     type Output = Scalar<D, P>;
     #[inline(always)]
     fn sub(self, rhs: Self) -> Scalar<D, P> {
-        Scalar::from_raw_unchecked(self.value - rhs.value)
+        Scalar::from_raw(self.value - rhs.value)
     }
 }
 
@@ -273,7 +273,7 @@ impl<D, P> Sub for &Scalar<D, P> {
 impl From<f64> for Scalar<crate::aliases::Dimensionless> {
     #[inline(always)]
     fn from(value: f64) -> Self {
-        Self::from_raw_unchecked(value)
+        Self::from_raw(value)
     }
 }
 

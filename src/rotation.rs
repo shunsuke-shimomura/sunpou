@@ -24,7 +24,7 @@ impl<F1, F2> core::fmt::Debug for Rotation<F1, F2> {
 impl<F1, F2> Rotation<F1, F2> {
     /// Create from a raw unit quaternion.
     #[inline(always)]
-    pub fn from_raw_unchecked(quat: UnitQuaternion<f64>) -> Self {
+    pub fn from_raw(quat: UnitQuaternion<f64>) -> Self {
         Self {
             quat,
             _marker: PhantomData,
@@ -68,19 +68,19 @@ impl<F1, F2> Rotation<F1, F2> {
     /// Dimension is preserved.
     #[inline(always)]
     pub fn transform<D, P>(&self, v: &FrameVec<F1, D, P>) -> FrameVec<F2, D, P> {
-        FrameVec::from_raw_unchecked(self.quat.transform_vector(v.as_raw()))
+        FrameVec::from_raw(self.quat.transform_vector(v.as_raw()))
     }
 
     /// Inverse rotation: `F2 → F1`.
     #[inline(always)]
     pub fn inverse(&self) -> Rotation<F2, F1> {
-        Rotation::from_raw_unchecked(self.quat.inverse())
+        Rotation::from_raw(self.quat.inverse())
     }
 
     /// Compose: `(F1→F2).then(F2→F3) = F1→F3`.
     #[inline(always)]
     pub fn then<F3>(&self, other: &Rotation<F2, F3>) -> Rotation<F1, F3> {
-        Rotation::from_raw_unchecked(other.quat * self.quat)
+        Rotation::from_raw(other.quat * self.quat)
     }
 
     /// Convert to a 3×3 rotation matrix (dimensionless).
@@ -93,6 +93,6 @@ impl<F1, F2> Rotation<F1, F2> {
         3,
         3,
     > {
-        crate::unit_mat::UnitMat::from_raw_unchecked(*self.quat.to_rotation_matrix().matrix())
+        crate::unit_mat::UnitMat::from_raw(*self.quat.to_rotation_matrix().matrix())
     }
 }

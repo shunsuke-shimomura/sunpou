@@ -54,7 +54,7 @@ fn dimensionless_from_f64() {
 
 #[test]
 fn f64_from_dimensionless() {
-    let s = Scalar::<Dimensionless>::from_raw_unchecked(2.718);
+    let s = Scalar::<Dimensionless>::from_raw(2.718);
     let v: f64 = s.into();
     assert_eq!(v, 2.718);
 }
@@ -100,7 +100,7 @@ fn unitvec_from_slice() {
 
 #[test]
 fn scalar_display() {
-    let s = Scalar::<Length>::from_raw_unchecked(42.5);
+    let s = Scalar::<Length>::from_raw(42.5);
     assert_eq!(format!("{s}"), "42.5");
 }
 
