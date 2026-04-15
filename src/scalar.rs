@@ -52,9 +52,24 @@ impl<D, P> core::fmt::Debug for Scalar<D, P> {
     }
 }
 
-impl<D, P> core::fmt::Display for Scalar<D, P> {
+impl<D, P> core::fmt::Display for Scalar<D, P>
+where
+    D: crate::dim_name::DimName,
+    P: crate::dim_name::PrefixName,
+{
+    /// Displays the value with prefix and SI unit string.
+    ///
+    /// Examples: `"7 km"`, `"9.8 m·s⁻²"`, `"980 kg·m·s⁻²"`, `"42"` (dimensionless)
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        core::fmt::Display::fmt(&self.value, f)
+        core::fmt::Display::fmt(&self.value, f)?;
+        let prefix = P::prefix_symbol();
+        let mut buf = crate::dim_name::DimNameBuf::new();
+        D::dim_name(&mut buf);
+        let dim_str = buf.as_str();
+        if !prefix.is_empty() || !dim_str.is_empty() {
+            write!(f, " {}{}", prefix, dim_str)?;
+        }
+        Ok(())
     }
 }
 

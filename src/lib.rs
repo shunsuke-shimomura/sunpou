@@ -15,6 +15,7 @@ pub mod elem_mat;
 pub mod frame_elem_mat;
 pub mod block;
 pub mod aliases;
+pub mod dim_name;
 pub mod units;
 
 // Legacy modules — kept for backward compatibility, prefer ElemMat/FrameElemMat

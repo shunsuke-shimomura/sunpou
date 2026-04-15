@@ -101,7 +101,7 @@ fn unitvec_from_slice() {
 #[test]
 fn scalar_display() {
     let s = Scalar::<Length>::from_raw(42.5);
-    assert_eq!(format!("{s}"), "42.5");
+    assert_eq!(format!("{s}"), "42.5 m");
 }
 
 #[test]
