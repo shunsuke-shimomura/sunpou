@@ -6,6 +6,7 @@
 #![no_std]
 
 pub mod dim;
+pub mod prefix;
 pub mod scalar;
 pub mod unit_vec;
 pub mod frame_vec;
